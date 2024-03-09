@@ -12,6 +12,9 @@ mysql>create database PRODUCT_DB;
 sudo docker pull mysql
 sudo docker network create springboot-mysql-net
 sudo docker network ls
-sudo docker run --name mysql --network springboot-mysql-net -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=dattp -d mysql
-sudo docker exec -it mysql /bin/bash
+sudo docker run --name mysql --network springboot-mysql-net -e MYSQL_ROOT_PASSWORD=dattp -e MYSQL_DATABASE=PRODUCT_DB -d mysql
+sudo docker exec -it mysql bash
 mysql>create database PRODUCT_DB;
+# run app
+sudo docker pull dattp6501/restaurent-product-service:first
+sudo docker run --network springboot-mysql-net --name restaurent-product-service -p 9001:9001 dattp6501/restaurent-product-service:first
