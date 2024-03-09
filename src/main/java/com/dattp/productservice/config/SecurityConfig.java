@@ -28,7 +28,7 @@ public class SecurityConfig{
 
         http.authorizeHttpRequests(auth -> auth
                 // .antMatchers("/**").permitAll()
-                .antMatchers("/h2-console/**").permitAll()//.hasAuthority("ROLE_ADMIN")
+//                .antMatchers("/h2-console/**").permitAll()//.hasAuthority("ROLE_ADMIN")
                 .antMatchers(ApplicationConfig.pathPublic).permitAll()
                 .anyRequest().authenticated()
                 .and()
