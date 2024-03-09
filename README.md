@@ -8,7 +8,10 @@ mysql -u root -p
 mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY '[newpassword]';
 mysql>create database PRODUCT_DB;
 
-
-sudo docker run --name mysql -e MYSQL_ROOT_PASSWORD=dattp -p 3306:3306 -d mysql
+# config mysql
+sudo docker pull mysql
+sudo docker network create springboot-mysql-net
+sudo docker network ls
+sudo docker run --name mysql --network springboot-mysql-net -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=dattp -d mysql
 sudo docker exec -it mysql /bin/bash
 mysql>create database PRODUCT_DB;
