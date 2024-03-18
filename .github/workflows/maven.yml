@@ -86,6 +86,10 @@ jobs:
         run: docker login -u ${{secrets.DOCKERHUB_USERNAME}} -p ${{secrets.DOCKERHUB_ACCESS_TOKEN}}
 
       - name: Build docker image
+        env:
+          DB_URL: ${{env.DB_URL}}
+          DB_USERNAME: ${{env.DB_USERNAME}}
+          DB_PASSWORD: ${{env.DB_PASSWORD}}
         run: docker build -t ${{secrets.DOCKERHUB_USERNAME}}/restaurent-product-service:first .
 
       - name: Publish image to docker hub
