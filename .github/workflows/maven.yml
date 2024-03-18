@@ -68,3 +68,15 @@ jobs:
 
       - name: Publish image to docker hub
         run: docker push ${{secrets.DOCKERHUB_USERNAME}}/restaurent-product-service:first
+#  deploy:
+#    needs: build
+#    runs-on: [ aws-ec2 ]
+#    steps:
+#      - name: Pull Image from docker hub
+#        run: docker pull ${{secrets.DOCKERHUB_USERNAME}}/restaurent-product-service:first
+#
+#      - name: Delete old container
+#        run: docker rm -f ${{secrets.DOCKERHUB_USERNAME}}/restaurent-product-service:first
+#
+#      - name: Run docker container
+#        run: docker run --network springboot-mysql-net --name restaurent-product-service -p 9001:9001 ${{secrets.DOCKERHUB_USERNAME}}/restaurent-product-service:first
