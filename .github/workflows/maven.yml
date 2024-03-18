@@ -80,6 +80,10 @@ jobs:
           java-version: '17'
 
       - name: Build Project
+        env:
+            DB_URL: ${{env.DB_URL}}
+            DB_USERNAME: ${{env.DB_USERNAME}}
+            DB_PASSWORD: ${{env.DB_PASSWORD}}
         run: mvn clean install -DskipTests
 
       - name: Login to docker hub
@@ -95,4 +99,8 @@ jobs:
       - name: Publish image to docker hub
         run: docker push ${{secrets.DOCKERHUB_USERNAME}}/restaurent-product-service:first
       - name: Test
+        env:
+          DB_URL: ${{env.DB_URL}}
+          DB_USERNAME: ${{env.DB_USERNAME}}
+          DB_PASSWORD: ${{env.DB_PASSWORD}}
         run: echo $DB_URL
