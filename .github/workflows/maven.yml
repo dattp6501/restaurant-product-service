@@ -5,13 +5,35 @@
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
 # documentation.
-name: build and push docker hub
+name: CI restaurent
 #
+# on:
+#   push:
+#     branches: [ "main" ]
+#   pull_request:
+#     branches: [ "main" ]
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+        - info
+        - warning
+        - debug
+      tags:
+        description: 'Test scenario tags'
+        required: false
+        type: boolean
+      environment:
+        description: 'Environment to run tests against'
+        type: environment
+        required: true
+
+
 
 #jobs:
 #  build:
@@ -58,16 +80,30 @@ jobs:
           java-version: '17'
 
       - name: Build Project
+        env:
+            DB_URL: ${{secrets.DB_URL}}
+            DB_USERNAME: ${{secrets.DB_USERNAME}}
+            DB_PASSWORD: ${{secrets.DB_PASSWORD}}
         run: mvn clean install -DskipTests
 
       - name: Login to docker hub
         run: docker login -u ${{secrets.DOCKERHUB_USERNAME}} -p ${{secrets.DOCKERHUB_ACCESS_TOKEN}}
 
       - name: Build docker image
+        env:
+          DB_URL: ${{secrets.DB_URL}}
+          DB_USERNAME: ${{secrets.DB_USERNAME}}
+          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
         run: docker build -t ${{secrets.DOCKERHUB_USERNAME}}/restaurent-product-service:first .
 
       - name: Publish image to docker hub
         run: docker push ${{secrets.DOCKERHUB_USERNAME}}/restaurent-product-service:first
+      - name: Test
+        env:
+          DB_URL: ${{secrets.DB_URL}}
+          DB_USERNAME: ${{secrets.DB_USERNAME}}
+          DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+        run: echo $DB_URL
 #  deploy:
 #    needs: build
 #    runs-on: [ aws-ec2 ]
