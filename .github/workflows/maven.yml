@@ -94,3 +94,5 @@ jobs:
 
       - name: Publish image to docker hub
         run: docker push ${{secrets.DOCKERHUB_USERNAME}}/restaurent-product-service:first
+      - name: Test
+        run: echo $DB_URL
