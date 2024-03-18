@@ -102,5 +102,5 @@ jobs:
         env:
           DB_URL: ${{secrets.DB_URL}}
           DB_USERNAME: ${{vars.DB_USERNAME}}
-          DB_PASSWORD: ${{DB_PASSWORD}}
+          DB_PASSWORD: ${{vars.DB_PASSWORD}}
         run: echo $DB_URL
