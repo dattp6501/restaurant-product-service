@@ -18,7 +18,7 @@ on:
       logLevel:
         description: 'Log level'
         required: true
-        default: 'warning'
+        default: 'debug'
         type: choice
         options:
         - info
@@ -69,6 +69,8 @@ on:
 jobs:
   build:
     runs-on: [ubuntu-latest]
+    environment:
+      name: ${{inputs.environment}}
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
