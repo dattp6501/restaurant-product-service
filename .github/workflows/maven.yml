@@ -25,7 +25,7 @@ on:
         - warning
         - debug
       tags:
-        description: 'Test scenario tags'
+        description: 'Test CI'
         required: false
         type: boolean
       environment:
