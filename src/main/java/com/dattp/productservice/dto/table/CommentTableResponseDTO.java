@@ -1,4 +1,4 @@
-package com.dattp.productservice.dto;
+package com.dattp.productservice.dto.table;
 
 import java.util.Date;
 

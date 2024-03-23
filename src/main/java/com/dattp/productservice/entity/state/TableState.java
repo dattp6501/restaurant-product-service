@@ -1,4 +1,7 @@
 package com.dattp.productservice.entity.state;
 
-public class TableState {
+public enum TableState {
+  ACTIVE,
+  INACTIVE,
+  DELETE
 }

@@ -1,9 +1,7 @@
 package com.dattp.productservice.config;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.servlet.FilterChain;
@@ -48,7 +46,11 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter{
             JWTVerifier jwtVerifier = JWT.require(algorithm).build();
             // giai ma
             DecodedJWT decodedJWT = jwtVerifier.verify(accessToken);
-            String username = decodedJWT.getSubject();
+            Map<String, Object> detail = new HashMap<>();
+            detail.put("id", decodedJWT.getClaim("id").asLong());
+            detail.put("fullname", decodedJWT.getClaim("fullname").asString());
+            detail.put("username", decodedJWT.getClaim("username").asString());
+            detail.put("email", decodedJWT.getClaim("email").asString());
             String[] roles = decodedJWT.getClaim("roles").asArray(String.class);
             // chuyen ve dang chuan de xu ly
             Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -56,7 +58,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter{
                 authorities.add(new SimpleGrantedAuthority(role));
             });
             // neu nguoi dung hop le thi set thong tin cho security context
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(username,null, authorities);
+            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(detail.get("id"),null, authorities);
             /*
             {
                 "authentication": {

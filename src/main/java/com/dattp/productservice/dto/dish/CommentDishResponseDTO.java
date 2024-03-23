@@ -1,4 +1,4 @@
-package com.dattp.productservice.dto;
+package com.dattp.productservice.dto.dish;
 
 import java.util.Date;
 

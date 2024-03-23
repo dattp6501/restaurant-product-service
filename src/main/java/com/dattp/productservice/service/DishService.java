@@ -6,37 +6,70 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.transaction.Transactional;
 
+import com.dattp.productservice.dto.dish.DishCreateRequestDTO;
+import com.dattp.productservice.dto.dish.DishResponseDTO;
+import com.dattp.productservice.dto.dish.DishUpdateRequestDTO;
+import com.dattp.productservice.entity.state.DishState;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.dattp.productservice.config.ApplicationConfig;
 import com.dattp.productservice.entity.CommentDish;
 import com.dattp.productservice.entity.Dish;
 import com.dattp.productservice.exception.BadRequestException;
-import com.dattp.productservice.repository.DishRepository;
-import com.dattp.productservice.repository.CommentDishRepository;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class DishService {
-    @Autowired
-    private DishRepository dishRepository;
-
-    @Autowired
-    private CommentDishRepository CommentDishRepository;
-
-    // @Transactional
-    public Dish save(Dish dish){
-        return dishRepository.save(dish);
+public class DishService extends com.dattp.productservice.service.Service {
+    /*
+     * get list dish
+     * */
+    public List<DishResponseDTO> getDishs(Pageable pageable){
+        List<DishResponseDTO> list = new ArrayList<>();
+        dishRepository.findAll(pageable).getContent().forEach((d)->{
+            DishResponseDTO dishResp = new DishResponseDTO(d);
+            list.add(dishResp);
+        });
+        return list;
+    }
+    /*
+    * get detail dish
+    * */
+    public DishResponseDTO getDetail(long id){
+      return new DishResponseDTO(dishRepository.findById(id).orElse(null));
+    }
+    /*
+    * create dish
+    * */
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
+    public DishResponseDTO create(DishCreateRequestDTO dishReq){
+        Dish dish = new Dish(dishReq);
+        dish = dishRepository.save(dish);
+        DishResponseDTO dishDTO = new DishResponseDTO(dish);
+        return dishDTO;
     }
 
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
+    public DishResponseDTO update(DishUpdateRequestDTO dto){
+        Dish dish = dishRepository.findById(dto.getId()).orElseThrow();
+        dish.copyProperties(dto);
+        return new DishResponseDTO(dishRepository.save(dish));
+    }
+    /*
+    * create dish by excel
+    * */
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
+    public Boolean createByExcel(InputStream inputStream) throws IOException {
+        List<Dish> listDish = readXlsxDish(inputStream);
+        dishRepository.saveAll(listDish);
+        return true;
+    }
     public List<Dish> readXlsxDish(InputStream inputStream) throws IOException{
         final int COLUMN_INDEX_NAME = 0;
         final int COLUMN_INDEX_PRICE = 1;
@@ -50,7 +83,7 @@ public class DishService {
         int index = 1;
         while(it.hasNext()) {
             Dish dish = new Dish();
-            dish.setState(ApplicationConfig.OK_STATE);
+            dish.setState(DishState.ACTIVE);
             Row row = it.next();
             for(int i=0; i<3; i++){
                 if(i==COLUMN_INDEX_NAME){
@@ -91,20 +124,10 @@ public class DishService {
         workbook.close();
         return dishs;
     }
-
-    @Transactional
-    public List<Dish> save(List<Dish> dishs){
-        return dishRepository.saveAll(dishs);
-    }
-    public Page<Dish> getDishs(Pageable pageable){
-        return dishRepository.findAll(pageable);
-    }
-    
-    public Dish getById(long id){
-        return dishRepository.findById(id).orElse(null);
-    }
-
-    @Transactional
+    /*
+    * add comment to dish
+    * */
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     public boolean addComment(Long dishId, CommentDish comment){
         if(CommentDishRepository.findByDishIdAndUserId(dishId, comment.getUser().getId())!=null)
             return CommentDishRepository.update(comment.getStar(), comment.getComment(), dishId, comment.getUser().getId(), comment.getDate())>0;
