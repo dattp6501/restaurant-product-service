@@ -6,8 +6,7 @@ import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
 @Getter
-public class DishRequestDTO {
-    private Long id;
+public class DishCreateRequestDTO {
     private int state;
 
     @NotNull(message = "Thiếu trường dữ liệu name(tên món ăn) khi gửi đi")
