@@ -9,7 +9,7 @@ import com.dattp.productservice.entity.CommentTable;
 
 public interface CommentTableRepository extends JpaRepository<CommentTable,Long>{
     @Query(
-        value="SELECT * FROM COMMENT_TABLE ct "
+        value="SELECT * FROM comment_table ct "
         +"WHERE ct.table_id=:table_id AND ct.user_id=:user_id "
         , nativeQuery=true
     )
@@ -17,20 +17,20 @@ public interface CommentTableRepository extends JpaRepository<CommentTable,Long>
 
     @Modifying
     @Query(
-        value = "INSERT INTO COMMENT_TABLE(star,comment,table_id,user_id,username) "
-        +"VALUES(:star,:comment,:table_id,:user_id,:username) ", 
+        value = "INSERT INTO comment_table(star,comment,table_id,user_id,username, date_) "
+        +"VALUES(:star,:comment,:table_id,:user_id,:username,:date_) ",
         nativeQuery=true
     )
-    public int save(@Param("star") int star, @Param("comment") String comment, @Param("table_id") Long tableId, @Param("user_id") Long userId, @Param("username") String username);
+    public int save(@Param("star") int star, @Param("comment") String comment, @Param("table_id") Long tableId, @Param("user_id") Long userId, @Param("username") String username, @Param("date_") Long date);
 
     @Modifying
     @Query(
-        value="UPDATE COMMENT_TABLE ct "
-        +"SET ct.star=:star, ct.comment=:comment "
+        value="UPDATE comment_table ct "
+        +"SET ct.star=:star, ct.comment=:comment, ct.date_=:date_ "
         +"WHERE ct.table_id=:table_id AND ct.user_id=:user_id "
         , nativeQuery = true
     )
-    public int update(@Param("star") int star, @Param("comment") String comment, @Param("table_id") Long tableId, @Param("user_id") Long userId);
+    public int update(@Param("star") int star, @Param("comment") String comment, @Param("table_id") Long tableId, @Param("user_id") Long userId, @Param("date_") Long date);
 
 
 }

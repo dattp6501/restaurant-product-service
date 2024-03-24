@@ -22,9 +22,10 @@ public class SecurityConfig{
     private JWTAuthenticationFilter jwtAuthenticationFilter;
 
   public static final String[] pathPublic= {
-    "/api/product/user/table/get_table",
-    "/api/product/user/dish/get_dish",
-    "/api/product/user/dish/get_dish_detail/*"
+    "/api/product/user/table",
+    "/api/product/user/table/*",
+    "/api/product/user/dish",
+    "/api/product/user/dish/*"
   };
 
 

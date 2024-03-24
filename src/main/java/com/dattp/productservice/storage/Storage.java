@@ -1,6 +1,7 @@
 package com.dattp.productservice.storage;
 
 
+import com.dattp.productservice.repository.CommentDishRepository;
 import com.dattp.productservice.repository.CommentTableRepository;
 import com.dattp.productservice.repository.DishRepository;
 import com.dattp.productservice.repository.TableRepository;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
 public class Storage {
   @Autowired @Lazy protected RedisService redisService;
   @Autowired @Lazy protected DishRepository dishRepository;
-  @Autowired @Lazy protected com.dattp.productservice.repository.CommentDishRepository CommentDishRepository;
+  @Autowired @Lazy protected CommentDishRepository commentDishRepository;
   @Autowired @Lazy protected TableRepository tableRepository;
   @Autowired @Lazy protected CommentTableRepository commentTableRepository;
 }

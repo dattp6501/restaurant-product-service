@@ -27,14 +27,14 @@ public class TableControllerManager extends Controller{
     /*
     * get tables
     * */
-    @GetMapping(value = "/get_table")
+    @GetMapping(value = "")
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_UPDATE","ROLE_PRODUCT_DELETE"})
     public ResponseEntity<ResponseDTO> getAllTable(Pageable pageable){
         return ResponseEntity.ok().body(
           new ResponseDTO(
             HttpStatus.OK.value(),
             "Thành công",
-            tableService.getAll(pageable)
+            tableService.getAllFromDB(pageable)
           )
         );
     }
@@ -42,14 +42,14 @@ public class TableControllerManager extends Controller{
     /*
     * get table detail
     * */
-    @GetMapping("/get_table_detail/{table_id}")
+    @GetMapping("/{table_id}")
     @RolesAllowed({"ROLE_PRODUCT_UPDATE","ROLE_PRODUCT_DELETE"})
     public ResponseEntity<ResponseDTO> getTableDetail(@PathVariable("table_id") Long id){
         return ResponseEntity.ok().body(
           new ResponseDTO(
             HttpStatus.OK.value(),
             "Thành công",
-            tableService.getDetail(id)
+            tableService.getDetailDB(id)
           )
         );
     }

@@ -15,7 +15,7 @@ public class CommentDishRequestDTO {
     private Long id;
 
     @Min(value=1,message="Số sao(star) phải lớn hơn 0")
-    private int star;
+    private Integer star;
 
     private String comment;
 

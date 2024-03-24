@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.dattp.productservice.config.redis.RedisKeyConfig;
 import com.dattp.productservice.dto.table.CommentTableResponseDTO;
@@ -16,7 +17,9 @@ import com.dattp.productservice.dto.table.TableCreateRequestDTO;
 import com.dattp.productservice.dto.table.TableResponseDTO;
 import com.dattp.productservice.dto.table.TableUpdateRequestDTO;
 import com.dattp.productservice.entity.Dish;
+import com.dattp.productservice.entity.User;
 import com.dattp.productservice.entity.state.TableState;
+import com.dattp.productservice.pojo.TableOverview;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -44,33 +47,97 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class TableService extends com.dattp.productservice.service.Service {
+    //================================================================================
+    //=================================   USER   =====================================
+    //================================================================================
+    /*
+     * get list table
+     * */
+    public List<TableOverview> getTableOverview(Pageable pageable){
+        return tableStorage.findListFromCacheAndDB(pageable);
+    }
+
+    public TableResponseDTO getDetailFromCache(Long id){
+        return new TableResponseDTO(tableStorage.getDetailFromCacheAndDB(id));
+    }
+    /*
+     *
+     * */
+    public List<PeriodsTimeBookedTableDTO> getFreeTimeOfTable(Date fromI, Date toI, Pageable pageable, String accessToken){
+        List<PeriodsTimeBookedTableDTO> list = new ArrayList<>();
+        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
+        String from = format.format(fromI);
+        String to = format.format(toI);
+        // lấy danh sách các bàn, trong đó có thời gian đặt của từng bàn
+        String url = "http://localhost:9003/api/booking/booked_table/get_all_period_rent_table?from={from}&to={to}";
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("access_token", accessToken);
+        HttpEntity<String> request = new HttpEntity<>(headers);
+        ResponseEntity<ResponseListTableFreeTimeDTO> response = restTemplate.exchange(
+          url,
+          HttpMethod.GET,
+          request,
+          ResponseListTableFreeTimeDTO.class,
+          from,to
+        );
+        List<Long> listNotIn = new ArrayList<>();
+        listNotIn.add((long)-1);
+        response.getBody().getData().stream().forEach((ptbt)->{
+            listNotIn.add(ptbt.getId());
+        });
+        // lay danh sach cac ban trong
+        final String url1 = "http://localhost:9003/api/booking/booked_table/get_period_rent_table/{id}?from={from}&to={to}";
+        tableRepository.findAllNotIn(listNotIn,pageable).getContent().stream().forEach((t)->{
+            PeriodsTimeBookedTableDTO periodsTimeBookedTableDTO = new PeriodsTimeBookedTableDTO();
+            periodsTimeBookedTableDTO.setTimes(new ArrayList<>());
+            BeanUtils.copyProperties(t, periodsTimeBookedTableDTO);
+            long id = t.getId();
+            ResponseEntity<ResponseDTO> resp1 = restTemplate.exchange(
+              url1,
+              HttpMethod.GET,
+              request,
+              ResponseDTO.class,
+              id,from,to
+            );
+            LinkedHashMap<String,List<Object>> map = (LinkedHashMap<String, List<Object>>) resp1.getBody().getData();
+            map.get("times").stream().forEach((obj)->{
+                LinkedHashMap<String,String> time = (LinkedHashMap<String, String>) obj;
+                try {
+                    PeriodTimeResponseDTO timeResp = new PeriodTimeResponseDTO(format.parse(time.get("from")), format.parse(time.get("to")));
+                    periodsTimeBookedTableDTO.getTimes().add(timeResp);
+                } catch (ParseException e) {
+                }
+            });
+            list.add(periodsTimeBookedTableDTO);
+        });
+        return list;
+    }
+    /*
+     * add comment
+     * */
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
+    public boolean addComment(CommentTable comment){
+        comment.setUser(new User(jwtService.getUserId(), jwtService.getUsername()));
+        return tableStorage.addCommentTable(comment);
+    }
+
+
+    //================================================================================
+    //=================================   ADMIN   =====================================
+    //================================================================================
     /*
     * get list table
     * */
-    public List<TableResponseDTO> getAll(Pageable pageable){
-        for(long i=1; i<=9; i++){
-            Object data = redisService.getHash(i+"", RedisKeyConfig.genKeyTable(i));
-            if(data!=null){
-                TableE tableE = (TableE) data;
-                tableRepository.save(tableE);
-            }
-        }
-
-        return null;
-//        List<TableResponseDTO> list = new ArrayList<>();
-//        tableRepository.findAll(pageable).getContent().forEach((t)->{
-//            TableResponseDTO tableResp = new TableResponseDTO(t);
-//            list.add(tableResp);
-//        });
-//        return list;
+    public List<TableResponseDTO> getAllFromDB(Pageable pageable){
+        return tableRepository.findAll(pageable)
+          .stream().map(TableResponseDTO::new)
+          .collect(Collectors.toList());
     }
     /*
     * get table detail
     * */
-    public TableResponseDTO getDetail(Long id){
-        TableE tableE = tableRepository.findById(id).orElseThrow();
-        TableResponseDTO tableResp = new TableResponseDTO(tableE);
-        return tableResp;
+    public TableResponseDTO getDetailDB(Long id){
+        return new TableResponseDTO(tableRepository.findById(id).orElseThrow());
     }
     /*
     * create table
@@ -78,10 +145,17 @@ public class TableService extends com.dattp.productservice.service.Service {
     @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     public TableResponseDTO create(TableCreateRequestDTO tableReq) {
         TableE table = new TableE(tableReq);
-        table = tableRepository.save(table);
+      return new TableResponseDTO(tableStorage.addToCacheAndDB(table));
+    }
+    /*
+     * update table
+     * */
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
+    public TableResponseDTO update(TableUpdateRequestDTO dto){
+        TableE table = tableRepository.findById(dto.getId()).orElseThrow();
+        table.copyProperties(dto);
         //cache
-        redisService.putHash(table.getId().toString(), RedisKeyConfig.genKeyTable(table.getId()), table, 0);
-      return new TableResponseDTO(table);
+        return new TableResponseDTO(tableStorage.updateFromCacheAndDB(table));
     }
     /*
     * create table with excel
@@ -91,7 +165,16 @@ public class TableService extends com.dattp.productservice.service.Service {
         List<TableE> tables = readXlsxTable(inputStream);
         tables = tableRepository.saveAll(tables);
         //cache
-        tables.forEach(t->redisService.putHash(t.getId().toString(), RedisKeyConfig.genKeyTable(t.getId()), t, 0));
+        //overview
+        if(!redisService.hasKey(RedisKeyConfig.genKeyAllTableOverview()))
+            tableStorage.initTableOverview();
+        tables.forEach(t->{
+            //detail
+            tableStorage.addToCache(t);
+            //over view
+            tableStorage.addTableOverview(t);
+          }
+        );
         return true;
     }
     public List<TableE> readXlsxTable(InputStream inputStream) throws IOException{
@@ -176,84 +259,5 @@ public class TableService extends com.dattp.productservice.service.Service {
         }
         workbook.close();
         return tables;
-    }
-    /*
-    * update table
-    * */
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
-    public TableResponseDTO update(TableUpdateRequestDTO dto){
-        TableE table = tableRepository.findById(dto.getId()).orElseThrow();
-        table.copyProperties(dto);
-        table = tableRepository.save(table);
-        //cache
-        redisService.putHash(table.getId().toString(), RedisKeyConfig.genKeyTable(table.getId()), table, 0);
-        return new TableResponseDTO(table);
-    }
-    /*
-    * add comment
-    * */
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
-    public boolean addComment(Long tableId, CommentTable comment){
-        // if user commented
-        try {
-            if(commentTableRepository.findByTableIdAndUserId(tableId, comment.getUser().getId())!=null)
-                return commentTableRepository.update(comment.getStar(), comment.getComment(), tableId, comment.getUser().getId())>0;
-            return commentTableRepository.save(comment.getStar(), comment.getComment(), tableId, comment.getUser().getId(), comment.getUser().getUsername())>=1;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-    /*
-    *
-    * */
-    public List<PeriodsTimeBookedTableDTO> getFreeTimeOfTable(Date fromI, Date toI, Pageable pageable, String accessToken){
-        List<PeriodsTimeBookedTableDTO> list = new ArrayList<>();
-        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
-        String from = format.format(fromI);
-        String to = format.format(toI);
-        // lấy danh sách các bàn, trong đó có thời gian đặt của từng bàn
-        String url = "http://localhost:9003/api/booking/booked_table/get_all_period_rent_table?from={from}&to={to}";
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("access_token", accessToken);
-        HttpEntity<String> request = new HttpEntity<>(headers); 
-        ResponseEntity<ResponseListTableFreeTimeDTO> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                request,
-                ResponseListTableFreeTimeDTO.class,
-                from,to
-        );
-        List<Long> listNotIn = new ArrayList<>();
-        listNotIn.add((long)-1);
-        response.getBody().getData().stream().forEach((ptbt)->{
-            listNotIn.add(ptbt.getId());
-        });
-        // lay danh sach cac ban trong
-        final String url1 = "http://localhost:9003/api/booking/booked_table/get_period_rent_table/{id}?from={from}&to={to}";
-        tableRepository.findAllNotIn(listNotIn,pageable).getContent().stream().forEach((t)->{
-            PeriodsTimeBookedTableDTO periodsTimeBookedTableDTO = new PeriodsTimeBookedTableDTO();
-            periodsTimeBookedTableDTO.setTimes(new ArrayList<>());
-            BeanUtils.copyProperties(t, periodsTimeBookedTableDTO);
-            long id = t.getId();
-            ResponseEntity<ResponseDTO> resp1 = restTemplate.exchange(
-                    url1,
-                    HttpMethod.GET,
-                    request,
-                    ResponseDTO.class,
-                    id,from,to
-            );
-            LinkedHashMap<String,List<Object>> map = (LinkedHashMap<String, List<Object>>) resp1.getBody().getData();
-            map.get("times").stream().forEach((obj)->{
-                LinkedHashMap<String,String> time = (LinkedHashMap<String, String>) obj;
-                try {
-                    PeriodTimeResponseDTO timeResp = new PeriodTimeResponseDTO(format.parse(time.get("from")), format.parse(time.get("to")));
-                    periodsTimeBookedTableDTO.getTimes().add(timeResp);
-                } catch (ParseException e) {
-                }
-            });
-            list.add(periodsTimeBookedTableDTO);
-        });
-        return list;
     }
 }

@@ -59,6 +59,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter{
             });
             // neu nguoi dung hop le thi set thong tin cho security context
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(detail.get("id"),null, authorities);
+            usernamePasswordAuthenticationToken.setDetails(detail);
             /*
             {
                 "authentication": {

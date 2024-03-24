@@ -1,5 +1,7 @@
 package com.dattp.productservice.entity;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import javax.persistence.AttributeOverride;
@@ -14,16 +16,21 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.dattp.productservice.dto.dish.CommentDishRequestDTO;
+import com.dattp.productservice.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.BeanUtils;
+import org.springframework.context.annotation.Lazy;
 
 @Entity
 @Table(name="COMMENT_DISH")
 @Getter
 @Setter
-public class CommentDish {
+public class CommentDish implements Serializable {
     @Column(name="id") @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
@@ -34,8 +41,7 @@ public class CommentDish {
     private String comment;
 
     @Column(name = "date_")
-    @JsonFormat(pattern = "HH:mm:ss dd/MM/yyyy")
-    private Date date;
+    private Long date;
 
     @Embedded
     @AttributeOverrides({
@@ -46,5 +52,17 @@ public class CommentDish {
 
     @ManyToOne
     @JoinColumn(name="dish_id")
+    @JsonIgnore @Lazy
     private Dish dish;
+
+    public CommentDish(){}
+
+    public CommentDish(CommentDishRequestDTO CDR){
+        copyProperties(CDR);
+    }
+    public void copyProperties(CommentDishRequestDTO CDR){
+        BeanUtils.copyProperties(CDR, this);
+        this.date = DateUtils.getCurrentMils();
+        this.dish = new Dish(); this.dish.setId(CDR.getDishId());
+    }
 }

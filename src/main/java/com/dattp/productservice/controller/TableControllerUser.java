@@ -33,20 +33,31 @@ import com.dattp.productservice.entity.User;
 @RestController
 @RequestMapping("/api/product/user/table")
 public class TableControllerUser extends Controller{
-    @GetMapping(value = "/get_table")
-    @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
+    @GetMapping(value = "")
+//    @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
     public ResponseEntity<ResponseDTO> getAllTable(Pageable pageable){
         return ResponseEntity.ok().body(
             new ResponseDTO(
                 HttpStatus.OK.value(), 
                 "Thành công", 
-                tableService.getAll(pageable)
+                tableService.getTableOverview(pageable)
             )
         );
     }
+    @GetMapping("/{table_id}")
+//    @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
+    public ResponseEntity<ResponseDTO> getTableDetail(@PathVariable("table_id") Long id){
+        return ResponseEntity.ok().body(
+          new ResponseDTO(
+            HttpStatus.OK.value(),
+            "Thành công",
+            tableService.getDetailFromCache(id)
+          )
+        );
+    }
 
-    @GetMapping
-    @RequestMapping("/get_table_freetime")
+    @GetMapping("/freetime")
+    @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
     public ResponseEntity<ResponseDTO> getTableFreeTime(@RequestParam("from") @DateTimeFormat(
         pattern="HH:mm:ss dd/MM/yyyy") Date from, @RequestParam("to") @DateTimeFormat(pattern="HH:mm:ss dd/MM/yyyy") Date to, 
         Pageable pageable, @RequestHeader(value="access_token", required=false) String accessToken
@@ -60,27 +71,13 @@ public class TableControllerUser extends Controller{
         );
     }
 
-    @GetMapping
-    @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
-    @RequestMapping("/get_table_detail/{table_id}")
-    public ResponseEntity<ResponseDTO> getTableDetail(@PathVariable("table_id") Long id){
-        return ResponseEntity.ok().body(
-            new ResponseDTO(
-                HttpStatus.OK.value(), 
-                "Thành công", 
-                tableService.getDetail(id)
-            )
-        );
-    }
+
 
     @PostMapping
-    @RequestMapping("add_comment")
+    @RequestMapping("/comment")
     @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
     public ResponseEntity<ResponseDTO> addComment(@RequestBody @Valid CommentTableRequestDTO CTR) throws Exception{
-        CommentTable CT = new CommentTable();
-        BeanUtils.copyProperties(CTR, CT);
-        CT.setUser(new User(Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName()), null));
-        if(!tableService.addComment(CTR.getTableId(), CT)) throw new Exception("Không đánh giá được sản phẩm");
+        if(!tableService.addComment(new CommentTable(CTR))) throw new Exception("Không đánh giá được sản phẩm");
         return ResponseEntity.ok().body(
             new ResponseDTO(
                 HttpStatus.OK.value(), 

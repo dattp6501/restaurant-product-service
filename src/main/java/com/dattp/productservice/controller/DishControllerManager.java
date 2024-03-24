@@ -24,27 +24,27 @@ import com.dattp.productservice.dto.ResponseDTO;
 @RestController
 @RequestMapping("/api/product/manage/dish")
 public class DishControllerManager extends Controller{
-    @GetMapping("/get_dish")
+    @GetMapping("")
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_UPDATE","ROLE_PRODUCT_DELETE"})
     public ResponseEntity<?> getDishs(Pageable pageable){//page=?&size=?
         return ResponseEntity.ok().body(
           new ResponseDTO(
             HttpStatus.OK.value(),
             "Thành công",
-            dishService.getDishs(pageable)
+            dishService.getDishsFromDB(pageable)
           )
         );
     }
 
     @GetMapping
-    @RequestMapping("/get_dish_detail/{dish_id}")
+    @RequestMapping("/{dish_id}")
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_UPDATE","ROLE_PRODUCT_DELETE"})
     public ResponseEntity<ResponseDTO> getDishDetail(@PathVariable("dish_id") long id){
         return ResponseEntity.ok().body(
           new ResponseDTO(
             HttpStatus.OK.value(),
             "Thành công",
-            dishService.getDetail(id)
+            dishService.getDetailFromDB(id)
           )
         );
     }
@@ -75,7 +75,7 @@ public class DishControllerManager extends Controller{
 
 
     @PostMapping
-    @RequestMapping("/update_dish")
+    @RequestMapping("/update")
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_UPDATE"})
     public ResponseEntity<?> updateDish(@RequestBody @Valid DishUpdateRequestDTO dishRequestDTO){
         return ResponseEntity.ok().body(

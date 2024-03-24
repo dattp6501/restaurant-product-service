@@ -25,42 +25,37 @@ import com.dattp.productservice.entity.User;
 @RestController
 @RequestMapping("/api/product/user/dish")
 public class DishControllerUser extends Controller{
-    @GetMapping("/get_dish")
+    @GetMapping("")
     public ResponseEntity<?> getDishs(Pageable pageable){//page=?&size=?
         return ResponseEntity.ok().body(
             new ResponseDTO(
                 HttpStatus.OK.value(), 
                 "Thành công",
-                dishService.getDishs(pageable)
+                dishService.getDishsOverview(pageable)
             )
         );
     }
 
-    @PostMapping("add_comment")
+    @GetMapping("{dish_id}")
+    public ResponseEntity<ResponseDTO> getDishDetail(@PathVariable("dish_id") long id){
+        return ResponseEntity.ok().body(
+          new ResponseDTO(
+            HttpStatus.OK.value(),
+            "Thành công",
+            dishService.getDetailFromCache(id)
+          )
+        );
+    }
+
+    @PostMapping("comment")
     @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
     public ResponseEntity<ResponseDTO> addComment(@RequestBody @Valid CommentDishRequestDTO CDR) throws Exception{
-        CommentDish CD = new CommentDish();
-        BeanUtils.copyProperties(CDR, CD);
-        CD.setDate(new Date());
-        CD.setUser(new User(Long.parseLong(SecurityContextHolder.getContext().getAuthentication().getName()), null));
-        if(!dishService.addComment(CDR.getDishId(), CD)) throw new Exception("Không đánh giá được sản phẩm");
+        if(!dishService.addComment(new CommentDish(CDR))) throw new Exception("Không đánh giá được sản phẩm");
         return ResponseEntity.ok().body(
             new ResponseDTO(
                 HttpStatus.OK.value(), 
                 "Thành công", 
                 null
-            )
-        );
-    }
-
-    @GetMapping
-    @RequestMapping("/get_dish_detail/{dish_id}")
-    public ResponseEntity<ResponseDTO> getDishDetail(@PathVariable("dish_id") long id){
-        return ResponseEntity.ok().body(
-            new ResponseDTO(
-                HttpStatus.OK.value(), 
-                "Thành công", 
-                dishService.getDetail(id)
             )
         );
     }

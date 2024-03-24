@@ -2,9 +2,7 @@ package com.dattp.productservice.service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -12,12 +10,15 @@ import com.dattp.productservice.config.redis.RedisKeyConfig;
 import com.dattp.productservice.dto.dish.DishCreateRequestDTO;
 import com.dattp.productservice.dto.dish.DishResponseDTO;
 import com.dattp.productservice.dto.dish.DishUpdateRequestDTO;
+import com.dattp.productservice.entity.User;
 import com.dattp.productservice.entity.state.DishState;
+import com.dattp.productservice.pojo.DishOverview;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.dattp.productservice.entity.CommentDish;
@@ -29,41 +30,64 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class DishService extends com.dattp.productservice.service.Service {
+    //===============================================================================
+    //==============================    USER   ===================================
+    //=============================================================================
     /*
      * get list dish
      * */
-    public List<DishResponseDTO> getDishs(Pageable pageable){
-      return dishStorage.findListFromCacheAndDB(pageable)
-        .stream().map(DishResponseDTO::new)
-        .collect(Collectors.toList());
+    public List<DishResponseDTO> getDishsOverview(Pageable pageable){
+        return dishStorage.findListFromCacheAndDB(pageable)
+          .stream().map(DishResponseDTO::new)
+          .collect(Collectors.toList());
     }
     /*
-    * get detail dish
-    * */
-    public DishResponseDTO getDetail(Long id){
+     * get detail dish
+     * */
+    public DishResponseDTO getDetailFromCache(Long id){
         return new DishResponseDTO(dishStorage.getDetailFromCacheAndDb(id));
     }
+
+    /*
+     * add comment to dish
+     * */
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
+    public boolean addComment(CommentDish comment){
+        comment.setUser(new User(jwtService.getUserId(), jwtService.getUsername()));
+        return dishStorage.addCommentDish(comment);
+    }
+
+
+
+
+    //===============================================================================
+    //==============================    ADMIN   ===================================
+    //=============================================================================
+    public List<DishResponseDTO> getDishsFromDB(Pageable pageable){
+        return dishRepository.findAll(pageable).stream()
+          .map(DishResponseDTO::new)
+          .collect(Collectors.toList());
+    }
+
+    public DishResponseDTO getDetailFromDB(Long id){
+        return new DishResponseDTO(dishRepository.findById(id).orElseThrow());
+    }
+
     /*
     * create dish
     * */
     @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     public DishResponseDTO create(DishCreateRequestDTO dishReq){
         Dish dish = new Dish(dishReq);
-        dish = dishRepository.save(dish);
-        // cache
-        redisService.putHash(dish.getId().toString(), RedisKeyConfig.genKeyDish(dish.getId()), dish, 0);
-
-        return new DishResponseDTO(dish);
+        //response
+        return new DishResponseDTO(dishStorage.addToCacheAndDb(dish));
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     public DishResponseDTO update(DishUpdateRequestDTO dto){
         Dish dish = dishRepository.findById(dto.getId()).orElseThrow();
         dish.copyProperties(dto);
-        dish = dishRepository.save(dish);
-        // cache
-        redisService.putHash(dish.getId().toString(), RedisKeyConfig.genKeyDish(dish.getId()), dish, 0);
-        return new DishResponseDTO();
+        return new DishResponseDTO(dishStorage.updateFromCacheAndDb(dish));
     }
     /*
     * create dish by excel
@@ -73,7 +97,14 @@ public class DishService extends com.dattp.productservice.service.Service {
         List<Dish> listDish = readXlsxDish(inputStream);
         listDish = dishRepository.saveAll(listDish);
         // cache
-        listDish.forEach(dish -> redisService.putHash(dish.getId().toString(), RedisKeyConfig.genKeyDish(dish.getId()), dish, 0));
+        //list dish overview
+        if(!redisService.hasKey(RedisKeyConfig.genKeyAllDishOverview())) dishStorage.initDishOverviewCache();
+        listDish.forEach(dish -> {
+            //list dish overview
+            dishStorage.addOverviewDishToCache(dish);
+            //detail dish
+            dishStorage.addToCache(dish);
+        });
         return true;
     }
     public List<Dish> readXlsxDish(InputStream inputStream) throws IOException{
@@ -129,14 +160,5 @@ public class DishService extends com.dattp.productservice.service.Service {
         }
         workbook.close();
         return dishs;
-    }
-    /*
-    * add comment to dish
-    * */
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
-    public boolean addComment(Long dishId, CommentDish comment){
-        if(CommentDishRepository.findByDishIdAndUserId(dishId, comment.getUser().getId())!=null)
-            return CommentDishRepository.update(comment.getStar(), comment.getComment(), dishId, comment.getUser().getId(), comment.getDate())>0;
-        return CommentDishRepository.save(comment.getStar(), comment.getComment(), dishId, comment.getUser().getId(), comment.getUser().getUsername(), comment.getDate())>=1;
     }
 }
