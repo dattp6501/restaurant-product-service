@@ -10,10 +10,12 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.dattp.productservice.config.redis.RedisKeyConfig;
 import com.dattp.productservice.dto.table.CommentTableResponseDTO;
 import com.dattp.productservice.dto.table.TableCreateRequestDTO;
 import com.dattp.productservice.dto.table.TableResponseDTO;
 import com.dattp.productservice.dto.table.TableUpdateRequestDTO;
+import com.dattp.productservice.entity.Dish;
 import com.dattp.productservice.entity.state.TableState;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -46,12 +48,21 @@ public class TableService extends com.dattp.productservice.service.Service {
     * get list table
     * */
     public List<TableResponseDTO> getAll(Pageable pageable){
-        List<TableResponseDTO> list = new ArrayList<>();
-        tableRepository.findAll(pageable).getContent().forEach((t)->{
-            TableResponseDTO tableResp = new TableResponseDTO(t);
-            list.add(tableResp);
-        });
-        return list;
+        for(long i=1; i<=9; i++){
+            Object data = redisService.getHash(i+"", RedisKeyConfig.genKeyTable(i));
+            if(data!=null){
+                TableE tableE = (TableE) data;
+                tableRepository.save(tableE);
+            }
+        }
+
+        return null;
+//        List<TableResponseDTO> list = new ArrayList<>();
+//        tableRepository.findAll(pageable).getContent().forEach((t)->{
+//            TableResponseDTO tableResp = new TableResponseDTO(t);
+//            list.add(tableResp);
+//        });
+//        return list;
     }
     /*
     * get table detail
@@ -68,6 +79,8 @@ public class TableService extends com.dattp.productservice.service.Service {
     public TableResponseDTO create(TableCreateRequestDTO tableReq) {
         TableE table = new TableE(tableReq);
         table = tableRepository.save(table);
+        //cache
+        redisService.putHash(table.getId().toString(), RedisKeyConfig.genKeyTable(table.getId()), table, 0);
       return new TableResponseDTO(table);
     }
     /*
@@ -76,7 +89,9 @@ public class TableService extends com.dattp.productservice.service.Service {
     @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     public Boolean createByExcel(InputStream inputStream) throws IOException {
         List<TableE> tables = readXlsxTable(inputStream);
-        tableRepository.saveAll(tables);
+        tables = tableRepository.saveAll(tables);
+        //cache
+        tables.forEach(t->redisService.putHash(t.getId().toString(), RedisKeyConfig.genKeyTable(t.getId()), t, 0));
         return true;
     }
     public List<TableE> readXlsxTable(InputStream inputStream) throws IOException{
@@ -170,6 +185,8 @@ public class TableService extends com.dattp.productservice.service.Service {
         TableE table = tableRepository.findById(dto.getId()).orElseThrow();
         table.copyProperties(dto);
         table = tableRepository.save(table);
+        //cache
+        redisService.putHash(table.getId().toString(), RedisKeyConfig.genKeyTable(table.getId()), table, 0);
         return new TableResponseDTO(table);
     }
     /*

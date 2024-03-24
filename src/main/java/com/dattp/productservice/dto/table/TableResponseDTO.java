@@ -22,6 +22,8 @@ public class TableResponseDTO{
 
     private String name;
 
+    private String image;
+
     private Integer amountOfPeople;
 
     private Float price;

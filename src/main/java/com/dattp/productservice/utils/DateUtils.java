@@ -16,4 +16,8 @@ public class DateUtils {
   public static LocalDateTime convertToLocalDateTime(long timeMils){
     return Instant.ofEpochMilli(timeMils).atZone(zoneId).toLocalDateTime();
   }
+
+  public static LocalDateTime getcurrentLocalDateTime(){
+    return LocalDateTime.now(zoneId);
+  }
 }

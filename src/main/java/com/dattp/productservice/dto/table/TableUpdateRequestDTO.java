@@ -24,6 +24,8 @@ public class TableUpdateRequestDTO {
   @NotEmpty(message = "Tên bàn không được để trống")
   private String name;
 
+  private String image;
+
   @Min(value = 1, message = "Số người có thể chứa phải lớn hơn hoặc bằng 0")
   private Integer amountOfPeople;
 

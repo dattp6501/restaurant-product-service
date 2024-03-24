@@ -1,5 +1,6 @@
 package com.dattp.productservice.entity;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -11,6 +12,7 @@ import com.dattp.productservice.entity.state.TableState;
 import com.dattp.productservice.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.BeanUtils;
@@ -20,16 +22,19 @@ import org.springframework.context.annotation.Lazy;
 @Table(name = "TABLE_")
 @Getter
 @Setter
-public class TableE {
+public class TableE implements Serializable {
+    @Column(name = "id") @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(name = "state")
     @Enumerated(EnumType.STRING)
     private TableState state;
 
-    @Column(name = "id") @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(name = "name", unique = true)
     private String name;
+
+    @Column(name = "image")
+    private String image;
 
     @Column(name = "amount_of_people", nullable=false)
     private Integer amountOfPeople;
@@ -55,7 +60,7 @@ public class TableE {
     private Long updateAt;
 
     @OneToMany(mappedBy="table")
-    @Lazy
+    @Lazy @JsonIgnore
     private List<CommentTable> CommentTables;
 
 

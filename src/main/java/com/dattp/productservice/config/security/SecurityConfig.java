@@ -1,5 +1,7 @@
-package com.dattp.productservice.config;
+package com.dattp.productservice.config.security;
 
+import com.dattp.productservice.config.ApplicationConfig;
+import com.dattp.productservice.config.security.JWTAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +21,12 @@ public class SecurityConfig{
     @Autowired
     private JWTAuthenticationFilter jwtAuthenticationFilter;
 
+  public static final String[] pathPublic= {
+    "/api/product/user/table/get_table",
+    "/api/product/user/dish/get_dish",
+    "/api/product/user/dish/get_dish_detail/*"
+  };
+
 
 
     @Bean
@@ -29,7 +37,7 @@ public class SecurityConfig{
         http.authorizeHttpRequests(auth -> auth
                 // .antMatchers("/**").permitAll()
 //                .antMatchers("/h2-console/**").permitAll()//.hasAuthority("ROLE_ADMIN")
-                .antMatchers(ApplicationConfig.pathPublic).permitAll()
+                .antMatchers(pathPublic).permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

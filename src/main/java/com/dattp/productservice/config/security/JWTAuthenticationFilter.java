@@ -1,4 +1,4 @@
-package com.dattp.productservice.config;
+package com.dattp.productservice.config.security;
 
 import java.io.IOException;
 import java.util.*;

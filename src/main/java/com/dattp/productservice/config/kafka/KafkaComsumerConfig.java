@@ -1,4 +1,4 @@
-package com.dattp.productservice.config;
+package com.dattp.productservice.config.kafka;
 
 import java.util.HashMap;
 import java.util.Map;

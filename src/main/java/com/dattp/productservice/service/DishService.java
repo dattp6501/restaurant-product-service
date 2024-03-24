@@ -5,8 +5,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
+import com.dattp.productservice.config.redis.RedisKeyConfig;
 import com.dattp.productservice.dto.dish.DishCreateRequestDTO;
 import com.dattp.productservice.dto.dish.DishResponseDTO;
 import com.dattp.productservice.dto.dish.DishUpdateRequestDTO;
@@ -31,18 +33,15 @@ public class DishService extends com.dattp.productservice.service.Service {
      * get list dish
      * */
     public List<DishResponseDTO> getDishs(Pageable pageable){
-        List<DishResponseDTO> list = new ArrayList<>();
-        dishRepository.findAll(pageable).getContent().forEach((d)->{
-            DishResponseDTO dishResp = new DishResponseDTO(d);
-            list.add(dishResp);
-        });
-        return list;
+      return dishStorage.findListFromCacheAndDB(pageable)
+        .stream().map(DishResponseDTO::new)
+        .collect(Collectors.toList());
     }
     /*
     * get detail dish
     * */
-    public DishResponseDTO getDetail(long id){
-      return new DishResponseDTO(dishRepository.findById(id).orElse(null));
+    public DishResponseDTO getDetail(Long id){
+        return new DishResponseDTO(dishStorage.getDetailFromCacheAndDb(id));
     }
     /*
     * create dish
@@ -51,15 +50,20 @@ public class DishService extends com.dattp.productservice.service.Service {
     public DishResponseDTO create(DishCreateRequestDTO dishReq){
         Dish dish = new Dish(dishReq);
         dish = dishRepository.save(dish);
-        DishResponseDTO dishDTO = new DishResponseDTO(dish);
-        return dishDTO;
+        // cache
+        redisService.putHash(dish.getId().toString(), RedisKeyConfig.genKeyDish(dish.getId()), dish, 0);
+
+        return new DishResponseDTO(dish);
     }
 
     @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     public DishResponseDTO update(DishUpdateRequestDTO dto){
         Dish dish = dishRepository.findById(dto.getId()).orElseThrow();
         dish.copyProperties(dto);
-        return new DishResponseDTO(dishRepository.save(dish));
+        dish = dishRepository.save(dish);
+        // cache
+        redisService.putHash(dish.getId().toString(), RedisKeyConfig.genKeyDish(dish.getId()), dish, 0);
+        return new DishResponseDTO();
     }
     /*
     * create dish by excel
@@ -67,7 +71,9 @@ public class DishService extends com.dattp.productservice.service.Service {
     @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     public Boolean createByExcel(InputStream inputStream) throws IOException {
         List<Dish> listDish = readXlsxDish(inputStream);
-        dishRepository.saveAll(listDish);
+        listDish = dishRepository.saveAll(listDish);
+        // cache
+        listDish.forEach(dish -> redisService.putHash(dish.getId().toString(), RedisKeyConfig.genKeyDish(dish.getId()), dish, 0));
         return true;
     }
     public List<Dish> readXlsxDish(InputStream inputStream) throws IOException{

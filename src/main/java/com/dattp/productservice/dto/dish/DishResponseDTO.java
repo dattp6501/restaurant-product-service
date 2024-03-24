@@ -14,13 +14,15 @@ import org.springframework.beans.BeanUtils;
 @Getter
 @Setter
 public class DishResponseDTO {
-    private DishState state;
+    private Long id;
 
-    private long id;
+    private DishState state;
 
     private String name;
 
-    private float price;
+    private Float price;
+
+    private String image;
 
     private List<CommentDishResponseDTO> comments;
 
@@ -41,7 +43,7 @@ public class DishResponseDTO {
 
     public void copyProperties(Dish dish){
         BeanUtils.copyProperties(dish, this);
-        this.createAt = DateUtils.convertToLocalDateTime(dish.getCreateAt());
-        this.updateAt = DateUtils.convertToLocalDateTime(dish.getUpdateAt());
+        if(dish.getCreateAt() != null) this.createAt = DateUtils.convertToLocalDateTime(dish.getCreateAt());
+        if(dish.getUpdateAt() != null) this.updateAt = DateUtils.convertToLocalDateTime(dish.getUpdateAt());
     }
 }

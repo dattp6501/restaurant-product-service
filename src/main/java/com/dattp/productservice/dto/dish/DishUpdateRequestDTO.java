@@ -25,5 +25,7 @@ public class DishUpdateRequestDTO {
   @Min(value = 1, message = "Trường dữ liệu price(giá món ắn) phải lớn hơn 0")
   private float price;
 
+  private String image;
+
   private String description;
 }
