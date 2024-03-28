@@ -21,7 +21,7 @@ import com.dattp.productservice.dto.ResponseDTO;
 public class HandleBadRequestException {
     @ExceptionHandler(BindException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseDTO hanđleBindException(BindException e){
+    public ResponseDTO handleBindException(BindException e){
         return new ResponseDTO(
             HttpStatus.BAD_REQUEST.value(), e.getAllErrors().get(0).getDefaultMessage(),null
         );
@@ -29,7 +29,7 @@ public class HandleBadRequestException {
 
     @ExceptionHandler(com.fasterxml.jackson.core.JsonParseException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseDTO hanđleJsonParseException(Exception e){
+    public ResponseDTO handleJsonParseException(Exception e){
         return new ResponseDTO(
             HttpStatus.BAD_REQUEST.value(), e.getMessage(),null
         );

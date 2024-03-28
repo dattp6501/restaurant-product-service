@@ -9,6 +9,7 @@ import com.dattp.productservice.dto.dish.DishCreateRequestDTO;
 import com.dattp.productservice.dto.dish.DishUpdateRequestDTO;
 import com.dattp.productservice.entity.state.DishState;
 import com.dattp.productservice.utils.DateUtils;
+import com.dattp.productservice.utils.JSONUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
@@ -69,5 +70,10 @@ public class Dish implements Serializable {
     public void copyProperties(DishUpdateRequestDTO dishRequestDTO){
         BeanUtils.copyProperties(dishRequestDTO, this);
         this.updateAt = DateUtils.getCurrentMils();
+    }
+
+    @Override
+    public String toString() {
+        return JSONUtils.toJson(this);
     }
 }

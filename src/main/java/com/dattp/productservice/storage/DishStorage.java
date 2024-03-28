@@ -3,12 +3,11 @@ package com.dattp.productservice.storage;
 import com.dattp.productservice.config.redis.RedisKeyConfig;
 import com.dattp.productservice.entity.CommentDish;
 import com.dattp.productservice.entity.Dish;
-import com.dattp.productservice.entity.User;
 import com.dattp.productservice.entity.state.DishState;
 import com.dattp.productservice.exception.BadRequestException;
 import com.dattp.productservice.pojo.DishOverview;
 import com.dattp.productservice.service.RedisService;
-import com.dattp.productservice.utils.JSONUtils;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -16,13 +15,11 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
+@Log4j2
 public class DishStorage extends Storage{
   //===================================== LIST DISH ==========================================
   /*
@@ -31,6 +28,7 @@ public class DishStorage extends Storage{
   public List<Dish> findListFromCacheAndDB(Pageable pageable){
     String key = RedisKeyConfig.genKeyAllDishOverview();
     List<DishOverview> dishs = redisService.getHashAll(key, DishOverview.class);
+    log.debug("======>  findListFromCacheAndDB::dish::cache::{}", Objects.nonNull(dishs)?dishs.size():dishs);
     if(dishs == null){
       dishs = initDishOverviewCache();
     }
@@ -43,13 +41,14 @@ public class DishStorage extends Storage{
     Map<Object, Object> dishMap = new HashMap<>();
     try{
       List<Dish> dishs = dishRepository.findAllByStateIn(List.of(DishState.ACTIVE));
+      log.debug("======>  initDishOverviewCache::dish::{}", Objects.nonNull(dishs)?dishs.size():dishs);
       for(Dish d : dishs){
         DishOverview dishOverview = new DishOverview(d);
         dishMap.put(d.getId().toString(), dishOverview);
       }
       redisService.putHashAll(RedisKeyConfig.genKeyAllDishOverview(), dishMap, RedisService.CacheTime.NO_LIMIT);
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
     return dishMap.values().stream().map(e->(DishOverview)e).collect(Collectors.toList());
   }
@@ -66,6 +65,7 @@ public class DishStorage extends Storage{
   public Dish getDetailFromCacheAndDb(Long id){
     String key = RedisKeyConfig.genKeyDish(id);
     Dish dish = redisService.getEntity(key, Dish.class);
+    log.debug("======> getDetailFromCacheAndDb::dish::cache::{}", dish);
     if(dish != null) return dish;
 
     dish = dishRepository.findById(id).orElseThrow(() -> new BadRequestException(String.format("dish(id=%d) not found", id)));
@@ -76,12 +76,16 @@ public class DishStorage extends Storage{
 
   public List<CommentDish> getListCommentFromCacheAndDB(Long dishId, Pageable pageable){
     List<CommentDish> comments = redisService.getHashAll(RedisKeyConfig.genKeyCommentDish(dishId), CommentDish.class);
+    log.debug("getListCommentFromCacheAndDB::comments::cache::{}", Objects.nonNull(comments)?comments.size():comments);
     if(comments==null){
       comments = commentDishRepository.findCommentDishesByDish_Id(dishId, pageable);
-      redisService.putHashAll(
-        RedisKeyConfig.genKeyCommentDish(dishId),
-        comments.stream().collect(Collectors.toMap(c->c.getUser().getId().toString(),c->c)),
-        RedisService.CacheTime.ONE_WEEK);
+      log.debug("getListCommentFromCacheAndDB::comments::db::{}", Objects.nonNull(comments)?comments.size():comments);
+      if(Objects.nonNull(comments))
+        redisService.putHashAll(
+          RedisKeyConfig.genKeyCommentDish(dishId),
+          comments.stream().collect(Collectors.toMap(c->c.getUser().getId().toString(),c->c)),
+          RedisService.CacheTime.ONE_WEEK);
+      else comments = new ArrayList<>();
     }
     return comments;
   }
@@ -111,7 +115,7 @@ public class DishStorage extends Storage{
     try{
       redisService.setEntity(RedisKeyConfig.genKeyDish(dish.getId()), dish, null);
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
   }
 
@@ -125,7 +129,7 @@ public class DishStorage extends Storage{
       //khoi tao lai danh sach
       initDishOverviewCache();
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
   }
 
@@ -139,7 +143,7 @@ public class DishStorage extends Storage{
       //khoi tao lai danh sach
       initDishOverviewCache();
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
   }
 
@@ -166,7 +170,7 @@ public class DishStorage extends Storage{
       });
       redisService.putHashAll(RedisKeyConfig.genKeyCommentDish(dishId), map, null);
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
   }
 }

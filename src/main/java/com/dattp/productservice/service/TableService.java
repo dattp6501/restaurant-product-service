@@ -15,6 +15,7 @@ import com.dattp.productservice.dto.table.TableUpdateRequestDTO;
 import com.dattp.productservice.entity.User;
 import com.dattp.productservice.entity.state.TableState;
 import com.dattp.productservice.pojo.TableOverview;
+import lombok.extern.log4j.Log4j2;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -40,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
+@Log4j2
 public class TableService extends com.dattp.productservice.service.Service {
     //================================================================================
     //=================================   USER   =====================================
@@ -100,6 +102,7 @@ public class TableService extends com.dattp.productservice.service.Service {
                     PeriodTimeResponseDTO timeResp = new PeriodTimeResponseDTO(format.parse(time.get("from")), format.parse(time.get("to")));
                     periodsTimeBookedTableDTO.getTimes().add(timeResp);
                 } catch (ParseException e) {
+                    log.error("======> addToCache::exception::{}",e.getMessage());
                 }
             });
             list.add(periodsTimeBookedTableDTO);
@@ -134,7 +137,7 @@ public class TableService extends com.dattp.productservice.service.Service {
     * get list table
     * */
     public List<TableResponseDTO> getAllFromDB(Pageable pageable){
-        return tableRepository.findAll(pageable)
+        return tableStorage.findAll(pageable)
           .stream().map(TableResponseDTO::new)
           .collect(Collectors.toList());
     }

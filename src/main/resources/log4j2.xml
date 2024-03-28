@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Properties>
+        <Property name="consolePattern">%style{%d{dd/MM/yy HH:mm:ss}}{yellow} | %highlight{%-5level}{FATAL=bg_red, ERROR=red, WARN=yellow, INFO=green} | wiinvent_ad_service | %replace{%mdc{traceId}}{^$}{empty} | %replace{%tn}{^$}{empty} | %replace{%mdc{duration}}{^$}{0} | %style{%F}{blue}: %m%n</Property>
+        <Property name="remotePattern">%d{dd/MM/yy HH:mm:ss} | %level | wiinvent_ad_service | %replace{%mdc{traceId}}{^$}{empty} | %replace{%tn}{^$}{empty} | %replace{%mdc{duration}}{^$}{0} | %F: %m</Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT" follow="true">
+            <PatternLayout pattern="${consolePattern}"/>
+        </Console>
+        <Socket name="Remote" host="${sys:log.host}" port="${sys:log.port}" protocol="UDP">
+            <PatternLayout pattern="${remotePattern}"/>
+        </Socket>
+    </Appenders>
+    <Loggers>
+        <Logger name="org.springframework.web" level="${sys:logging.level.com.dattp}" includeLocation="true"/>
+        <Logger name="org.springframework.data" level="${sys:logging.level.com.dattp}" includeLocation="true"/>
+        <Logger name="org.hibernate.dialect.MySQL5Dialect" level="${sys:logging.level.com.dattp}" includeLocation="true"/>
+
+        <AsyncRoot level="${sys:logging.level.com.dattp}" includeLocation="true">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="Remote"/>
+        </AsyncRoot>
+    </Loggers>
+</Configuration>

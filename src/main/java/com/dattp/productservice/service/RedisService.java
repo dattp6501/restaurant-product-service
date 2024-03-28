@@ -1,15 +1,13 @@
 package com.dattp.productservice.service;
 
-import com.dattp.productservice.config.redis.RedisKeyConfig;
 import com.dattp.productservice.utils.JSONUtils;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +15,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
+@Log4j2
 public class RedisService {
-  public static enum CacheTime {
+  public enum CacheTime {
     ONE_DAY(1000*3600*24L),
     THREE_DAY(1000*3600*24*3L),
     ONE_WEEK(1000*3600*24*7L),
@@ -42,7 +41,7 @@ public class RedisService {
     try {
       redisTemplate.delete(key);
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
   }
 
@@ -63,7 +62,7 @@ public class RedisService {
     try {
       redisTemplate.opsForHash().delete(key, hashKey);
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
   }
 
@@ -84,7 +83,7 @@ public class RedisService {
       if(cacheTime == null) cacheTime = CacheTime.ONE_WEEK;
       redisTemplate.expire(key, cacheTime.time(), TimeUnit.MILLISECONDS);
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
   }
 
@@ -97,7 +96,7 @@ public class RedisService {
       if(cacheTime == null) cacheTime = CacheTime.ONE_WEEK;
       redisTemplate.expire(key, cacheTime.time(), TimeUnit.MILLISECONDS);
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
   }
 
@@ -109,7 +108,7 @@ public class RedisService {
       if(cacheTime == null) cacheTime = CacheTime.ONE_WEEK;
       redisTemplate.expire(key, cacheTime.time(), TimeUnit.MILLISECONDS);
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
   }
 
@@ -133,7 +132,7 @@ public class RedisService {
       if(cacheTime == null) cacheTime = CacheTime.ONE_WEEK;
       redisTemplate.expire(key, cacheTime.time(), TimeUnit.MILLISECONDS);
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
   }
 
@@ -155,7 +154,7 @@ public class RedisService {
       }
       redisTemplate.opsForValue().set(key, value, cacheTime.time(), TimeUnit.MILLISECONDS);
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
   }
 
@@ -163,7 +162,7 @@ public class RedisService {
     try {
       return JSONUtils.toEntity((String) redisTemplate.opsForValue().get(key), tClass);
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
       return null;
     }
   }

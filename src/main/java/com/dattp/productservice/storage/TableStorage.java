@@ -1,17 +1,13 @@
 package com.dattp.productservice.storage;
 
 import com.dattp.productservice.config.redis.RedisKeyConfig;
-import com.dattp.productservice.entity.CommentDish;
 import com.dattp.productservice.entity.CommentTable;
-import com.dattp.productservice.entity.Dish;
 import com.dattp.productservice.entity.TableE;
-import com.dattp.productservice.entity.state.DishState;
 import com.dattp.productservice.entity.state.TableState;
 import com.dattp.productservice.exception.BadRequestException;
-import com.dattp.productservice.pojo.DishOverview;
 import com.dattp.productservice.pojo.TableOverview;
 import com.dattp.productservice.service.RedisService;
-import com.dattp.productservice.utils.JSONUtils;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -26,6 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
+@Log4j2
 public class TableStorage extends Storage{
   //================================  LIST TABLE =========================================
   /*
@@ -49,7 +46,7 @@ public class TableStorage extends Storage{
       }
       redisService.putHashAll(RedisKeyConfig.genKeyAllTableOverview(), tableMap, RedisService.CacheTime.NO_LIMIT);
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
     return tableMap.values().stream()
       .map(e->(TableOverview)e).collect(Collectors.toList());
@@ -90,7 +87,7 @@ public class TableStorage extends Storage{
     try {
       redisService.setEntity(RedisKeyConfig.genKeyTable(table.getId()), table, null);
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
   }
 
@@ -102,7 +99,7 @@ public class TableStorage extends Storage{
       }
       initTableOverview();
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
   }
 
@@ -114,7 +111,7 @@ public class TableStorage extends Storage{
       }
       initTableOverview();
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
   }
 
@@ -144,7 +141,7 @@ public class TableStorage extends Storage{
       });
       redisService.putHashAll(RedisKeyConfig.genKeyCommentTable(tableId), map, null);
     }catch (Exception e){
-      e.printStackTrace();
+      log.error("======> addToCache::exception::{}",e.getMessage());
     }
   }
 

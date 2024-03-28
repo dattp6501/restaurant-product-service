@@ -13,6 +13,7 @@ import com.dattp.productservice.dto.dish.DishResponseDTO;
 import com.dattp.productservice.dto.dish.DishUpdateRequestDTO;
 import com.dattp.productservice.entity.User;
 import com.dattp.productservice.entity.state.DishState;
+import lombok.extern.log4j.Log4j2;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -23,11 +24,9 @@ import org.springframework.stereotype.Service;
 import com.dattp.productservice.entity.CommentDish;
 import com.dattp.productservice.entity.Dish;
 import com.dattp.productservice.exception.BadRequestException;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Log4j2
 public class DishService extends com.dattp.productservice.service.Service {
     //===============================================================================
     //==============================    USER   ===================================
@@ -36,6 +35,7 @@ public class DishService extends com.dattp.productservice.service.Service {
      * get list dish
      * */
     public List<DishResponseDTO> getDishsOverview(Pageable pageable){
+        log.debug("====================================> TEST LOG ========================================");
         return dishStorage.findListFromCacheAndDB(pageable)
           .stream().map(DishResponseDTO::new)
           .collect(Collectors.toList());
@@ -147,7 +147,7 @@ public class DishService extends com.dattp.productservice.service.Service {
             Row row = it.next();
             for(int i=0; i<3; i++){
                 if(i==COLUMN_INDEX_NAME){
-                    if(row.getCell(i)==null || row.getCell(i).getStringCellValue().equals("")){
+                    if(row.getCell(i)==null || row.getCell(i).getStringCellValue().isEmpty()){
                         workbook.close();
                         throw new BadRequestException("Dòng "+index+": Tên món ăn không được để trống");
                     }
