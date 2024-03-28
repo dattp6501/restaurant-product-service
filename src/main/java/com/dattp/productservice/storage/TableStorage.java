@@ -97,7 +97,7 @@ public class TableStorage extends Storage{
   public void addTableOverview(TableE table){
     try {
       if(redisService.hasKey(RedisKeyConfig.genKeyTable(table.getId()))){
-        redisService.addElemntHash(RedisKeyConfig.genKeyAllTableOverview(), table.getId().toString(), new TableOverview(table));
+        redisService.addElemntHash(RedisKeyConfig.genKeyAllTableOverview(), table.getId().toString(), new TableOverview(table), RedisService.CacheTime.NO_LIMIT);
         return;
       }
       initTableOverview();
@@ -109,7 +109,7 @@ public class TableStorage extends Storage{
   public void updateTableOverview(TableE table){
     try {
       if(redisService.hasKey(RedisKeyConfig.genKeyTable(table.getId()))){
-        redisService.updateHash(RedisKeyConfig.genKeyAllTableOverview(), table.getId().toString(), new TableOverview(table));
+        redisService.updateHash(RedisKeyConfig.genKeyAllTableOverview(), table.getId().toString(), new TableOverview(table), RedisService.CacheTime.NO_LIMIT);
         return;
       }
       initTableOverview();
@@ -146,5 +146,18 @@ public class TableStorage extends Storage{
     }catch (Exception e){
       e.printStackTrace();
     }
+  }
+
+  public List<CommentTable> getListCommentTableFromCacheAndDB(Long tableId, Pageable pageable){
+    List<CommentTable> comments = redisService.getHashAll(RedisKeyConfig.genKeyCommentTable(tableId), CommentTable.class);
+    if(comments == null){
+      comments = commentTableRepository.findCommentTablesByTableId(tableId, pageable).toList();
+      redisService.putHashAll(
+        RedisKeyConfig.genKeyCommentTable(tableId),
+        comments.stream().collect(Collectors.toMap(c->c.getUser().getId().toString(), c->c)),
+        RedisService.CacheTime.ONE_WEEK
+      );
+    }
+    return comments;
   }
 }

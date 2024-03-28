@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 
 import com.dattp.productservice.config.redis.RedisKeyConfig;
+import com.dattp.productservice.dto.dish.CommentDishResponseDTO;
 import com.dattp.productservice.dto.dish.DishCreateRequestDTO;
 import com.dattp.productservice.dto.dish.DishResponseDTO;
 import com.dattp.productservice.dto.dish.DishUpdateRequestDTO;
@@ -57,11 +58,19 @@ public class DishService extends com.dattp.productservice.service.Service {
         String key = RedisKeyConfig.genKeyCommentDish(comment.getDish().getId());
         if(!redisService.hasKey(key))
             dishStorage.initCommentDishCache(comment.getDish().getId());
-        else redisService.addElemntHash(key, comment.getUser().getId().toString(), comment);
+        else redisService.addElemntHash(key, comment.getUser().getId().toString(), comment, RedisService.CacheTime.ONE_WEEK);
 
         return true;
     }
 
+    /*
+    * get list comment
+    * */
+    public List<CommentDishResponseDTO> getListComment(Long dishId, Pageable pageable){
+        return dishStorage.getListCommentFromCacheAndDB(dishId, pageable)
+          .stream().map(CommentDishResponseDTO::new)
+          .collect(Collectors.toList());
+    }
 
 
 

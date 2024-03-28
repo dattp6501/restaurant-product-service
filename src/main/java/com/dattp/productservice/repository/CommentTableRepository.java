@@ -1,5 +1,7 @@
 package com.dattp.productservice.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -32,5 +34,5 @@ public interface CommentTableRepository extends JpaRepository<CommentTable,Long>
     )
     public int update(@Param("star") int star, @Param("comment") String comment, @Param("table_id") Long tableId, @Param("user_id") Long userId, @Param("date_") Long date);
 
-
+    public Page<CommentTable> findCommentTablesByTableId(Long tableId, Pageable pageable);
 }

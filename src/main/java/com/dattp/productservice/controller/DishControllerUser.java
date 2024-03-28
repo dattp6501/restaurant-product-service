@@ -60,15 +60,13 @@ public class DishControllerUser extends Controller{
         );
     }
 
-    @PostMapping("/{dishId}/comment")
-    @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
-    public ResponseEntity<ResponseDTO> getComment(@PathVariable("dishId") Long dishId) throws Exception{
-
+    @GetMapping("/{dishId}/comment")
+    public ResponseEntity<?> getComment(@PathVariable("dishId") Long dishId, Pageable pageable){
         return ResponseEntity.ok().body(
           new ResponseDTO(
             HttpStatus.OK.value(),
             "Thành công",
-            null
+            dishService.getListComment(dishId, pageable)
           )
         );
     }

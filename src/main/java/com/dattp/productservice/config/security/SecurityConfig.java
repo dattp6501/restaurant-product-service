@@ -24,8 +24,10 @@ public class SecurityConfig{
   public static final String[] pathPublic= {
     "/api/product/user/table",
     "/api/product/user/table/*",
+    "/api/product/user/table/*/comment",
     "/api/product/user/dish",
-    "/api/product/user/dish/*"
+    "/api/product/user/dish/*",
+    "/api/product/user/dish/*/comment"
   };
 
 

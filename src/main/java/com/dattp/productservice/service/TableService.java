@@ -4,11 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.dattp.productservice.config.redis.RedisKeyConfig;
@@ -16,7 +12,6 @@ import com.dattp.productservice.dto.table.CommentTableResponseDTO;
 import com.dattp.productservice.dto.table.TableCreateRequestDTO;
 import com.dattp.productservice.dto.table.TableResponseDTO;
 import com.dattp.productservice.dto.table.TableUpdateRequestDTO;
-import com.dattp.productservice.entity.Dish;
 import com.dattp.productservice.entity.User;
 import com.dattp.productservice.entity.state.TableState;
 import com.dattp.productservice.pojo.TableOverview;
@@ -25,7 +20,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -82,12 +76,12 @@ public class TableService extends com.dattp.productservice.service.Service {
         );
         List<Long> listNotIn = new ArrayList<>();
         listNotIn.add((long)-1);
-        response.getBody().getData().stream().forEach((ptbt)->{
+        Objects.requireNonNull(response.getBody()).getData().forEach((ptbt)->{
             listNotIn.add(ptbt.getId());
         });
         // lay danh sach cac ban trong
         final String url1 = "http://localhost:9003/api/booking/booked_table/get_period_rent_table/{id}?from={from}&to={to}";
-        tableRepository.findAllNotIn(listNotIn,pageable).getContent().stream().forEach((t)->{
+        tableRepository.findAllNotIn(listNotIn,pageable).getContent().forEach((t)->{
             PeriodsTimeBookedTableDTO periodsTimeBookedTableDTO = new PeriodsTimeBookedTableDTO();
             periodsTimeBookedTableDTO.setTimes(new ArrayList<>());
             BeanUtils.copyProperties(t, periodsTimeBookedTableDTO);
@@ -100,7 +94,7 @@ public class TableService extends com.dattp.productservice.service.Service {
               id,from,to
             );
             LinkedHashMap<String,List<Object>> map = (LinkedHashMap<String, List<Object>>) resp1.getBody().getData();
-            map.get("times").stream().forEach((obj)->{
+            map.get("times").forEach((obj)->{
                 LinkedHashMap<String,String> time = (LinkedHashMap<String, String>) obj;
                 try {
                     PeriodTimeResponseDTO timeResp = new PeriodTimeResponseDTO(format.parse(time.get("from")), format.parse(time.get("to")));
@@ -122,8 +116,14 @@ public class TableService extends com.dattp.productservice.service.Service {
         //cache
         String key = RedisKeyConfig.genKeyCommentTable(comment.getTable().getId());
         if(!redisService.hasKey(key)) tableStorage.initCommentTableCache(comment.getTable().getId());
-        redisService.addElemntHash(key, comment.getUser().getId().toString(), comment);
+        redisService.addElemntHash(key, comment.getUser().getId().toString(), comment, RedisService.CacheTime.ONE_WEEK);
         return true;
+    }
+
+    public List<CommentTableResponseDTO> getListCommentTable(Long tableId, Pageable pageable){
+        return tableStorage.getListCommentTableFromCacheAndDB(tableId, pageable)
+          .stream().map(CommentTableResponseDTO::new)
+          .collect(Collectors.toList());
     }
 
 
@@ -197,7 +197,7 @@ public class TableService extends com.dattp.productservice.service.Service {
         final int COLUMN_INDEX_PRICE = 2;
         final int COLUMN_INDEX_FROM = 3;
         final int COLUMN_INDEX_TO = 4;
-        final int COLUMN_INDEX_DESCRIPTION = 5;
+        //final int COLUMN_INDEX_DESCRIPTION = 5;
         // xlsx: XSSFWorkbook, xls: HSSFWorkbook,
         Workbook workbook = new XSSFWorkbook(inputStream);
         Sheet sheet = workbook.getSheetAt(0);
@@ -212,7 +212,7 @@ public class TableService extends com.dattp.productservice.service.Service {
             table.setState(TableState.ACTIVE);
             for(int i=0; i<6; i++){
                 if(i==COLUMN_INDEX_NAME){
-                    if(row.getCell(i)!=null && !row.getCell(i).getStringCellValue().equals("")) {
+                    if(row.getCell(i)!=null && !row.getCell(i).getStringCellValue().isEmpty()) {
                         table.setName(row.getCell(i).getStringCellValue());
                         isRowEmpty = false;
                     }
@@ -246,17 +246,14 @@ public class TableService extends com.dattp.productservice.service.Service {
                     }
                     continue;
                 }
-                if(i==COLUMN_INDEX_DESCRIPTION){
-                    if(row.getCell(i)!=null){
-                        table.setDescription(row.getCell(i).getStringCellValue());
-                        isRowEmpty = false;
-                    }
-                    continue;
+                if (row.getCell(i) != null) {
+                table.setDescription(row.getCell(i).getStringCellValue());
+                isRowEmpty = false;
                 }
             }
             if(isRowEmpty) continue;//if row empty
             // row not empty
-            if(table.getName()==null || table.getName().equals("")){
+            if(table.getName()==null || table.getName().isEmpty()){
                 workbook.close();
                 throw new BadRequestException("Dòng "+index+": Tên bàn không được để trống");
             }

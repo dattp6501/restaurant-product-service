@@ -86,4 +86,15 @@ public class TableControllerUser extends Controller{
             )
         );
     }
+
+    @GetMapping("/{tableId}/comment")
+    public ResponseEntity<ResponseDTO> addComment(@PathVariable("tableId") Long tableId, Pageable pageable){
+        return ResponseEntity.ok().body(
+          new ResponseDTO(
+            HttpStatus.OK.value(),
+            "Thành công",
+            tableService.getListCommentTable(tableId, pageable)
+          )
+        );
+    }
 }

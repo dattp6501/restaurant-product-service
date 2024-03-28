@@ -1,7 +1,8 @@
 package com.dattp.productservice.repository;
 
-import java.util.Date;
+import java.util.List;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -33,4 +34,6 @@ public interface CommentDishRepository extends JpaRepository<CommentDish,Long>{
         , nativeQuery = true
     )
     public int update(@Param("star") int star, @Param("comment") String comment, @Param("dish_id") Long dishId, @Param("user_id") Long userId, @Param("date") Long date);
+
+    public List<CommentDish> findCommentDishesByDish_Id(Long dishId,  Pageable pageable);
 }

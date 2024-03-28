@@ -1,7 +1,6 @@
 package com.dattp.productservice.entity;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -17,7 +16,6 @@ import javax.persistence.Table;
 
 import com.dattp.productservice.dto.table.CommentTableRequestDTO;
 import com.dattp.productservice.utils.DateUtils;
-import com.fasterxml.jackson.annotation.JsonFormat;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;

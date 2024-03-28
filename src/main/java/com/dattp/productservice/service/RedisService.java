@@ -75,21 +75,27 @@ public class RedisService {
     }
   }
 
-  public void updateHash(String key, String hashKey, Object value){
+  public void updateHash(String key, String hashKey, Object value, CacheTime cacheTime){
     try {
       deleteHash(key, hashKey);
       redisTemplate.opsForHash().putIfAbsent(key, hashKey, value);
-      redisTemplate.expire(key, CacheTime.ONE_WEEK.time(), TimeUnit.MILLISECONDS);
+
+      if(cacheTime == CacheTime.NO_LIMIT) return;
+      if(cacheTime == null) cacheTime = CacheTime.ONE_WEEK;
+      redisTemplate.expire(key, cacheTime.time(), TimeUnit.MILLISECONDS);
     }catch (Exception e){
       e.printStackTrace();
     }
   }
 
-  public void addElemntHash(String key, String hashKey, Object value){
+  public void addElemntHash(String key, String hashKey, Object value, CacheTime cacheTime){
     try {
       deleteHash(key, hashKey);
       redisTemplate.opsForHash().putIfAbsent(key, hashKey, value);
-      redisTemplate.expire(key, CacheTime.ONE_WEEK.time(), TimeUnit.MILLISECONDS);
+
+      if(cacheTime == CacheTime.NO_LIMIT) return;
+      if(cacheTime == null) cacheTime = CacheTime.ONE_WEEK;
+      redisTemplate.expire(key, cacheTime.time(), TimeUnit.MILLISECONDS);
     }catch (Exception e){
       e.printStackTrace();
     }
@@ -107,11 +113,11 @@ public class RedisService {
     }
   }
 
-  public <T> List<T> getHashAll(String key, Class<T> tClass){
+  public <T> List<T> getHashAll(String key, Class<T> typeClassElement){
     try {
       List<T> list = redisTemplate.opsForHash().entries(key).values()
         .stream()
-        .map(e->JSONUtils.toEntity((String) e,tClass))
+        .map(e->JSONUtils.toEntity((String) e,typeClassElement))
         .collect(Collectors.toList());
       return list.isEmpty()?null:list;
     }catch (Exception e){

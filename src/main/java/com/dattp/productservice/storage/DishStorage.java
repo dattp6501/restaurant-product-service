@@ -73,6 +73,18 @@ public class DishStorage extends Storage{
 
     return dish;
   }
+
+  public List<CommentDish> getListCommentFromCacheAndDB(Long dishId, Pageable pageable){
+    List<CommentDish> comments = redisService.getHashAll(RedisKeyConfig.genKeyCommentDish(dishId), CommentDish.class);
+    if(comments==null){
+      comments = commentDishRepository.findCommentDishesByDish_Id(dishId, pageable);
+      redisService.putHashAll(
+        RedisKeyConfig.genKeyCommentDish(dishId),
+        comments.stream().collect(Collectors.toMap(c->c.getUser().getId().toString(),c->c)),
+        RedisService.CacheTime.ONE_WEEK);
+    }
+    return comments;
+  }
   /*
    * admin
    * */
@@ -107,7 +119,7 @@ public class DishStorage extends Storage{
     try {
       //neu key luu ton tai => them
       if(redisService.hasKey(RedisKeyConfig.genKeyAllDishOverview())){
-        redisService.addElemntHash(RedisKeyConfig.genKeyAllDishOverview(), dish.getId().toString(), new DishOverview(dish));
+        redisService.addElemntHash(RedisKeyConfig.genKeyAllDishOverview(), dish.getId().toString(), new DishOverview(dish), RedisService.CacheTime.NO_LIMIT);
         return;
       }
       //khoi tao lai danh sach
@@ -121,7 +133,7 @@ public class DishStorage extends Storage{
     try {
       //neu key luu ton tai => cap nhat lai gia tri
       if(redisService.hasKey(RedisKeyConfig.genKeyAllDishOverview())){
-        redisService.updateHash(RedisKeyConfig.genKeyAllDishOverview(), dish.getId().toString(), new DishOverview(dish));
+        redisService.updateHash(RedisKeyConfig.genKeyAllDishOverview(), dish.getId().toString(), new DishOverview(dish), RedisService.CacheTime.NO_LIMIT);
         return;
       }
       //khoi tao lai danh sach
