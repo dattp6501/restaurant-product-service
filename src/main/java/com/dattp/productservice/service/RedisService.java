@@ -1,16 +1,20 @@
 package com.dattp.productservice.service;
 
 import com.dattp.productservice.config.redis.RedisKeyConfig;
+import com.dattp.productservice.utils.JSONUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class RedisService {
@@ -51,13 +55,13 @@ public class RedisService {
   }
   //========================================== HASH ===============================================
   /*
-  * hashKey: key cua du lieu
-  * key: key cua tung element trong value cua hashKey
-  * hasKey => key i : value i
+  * key: key cua du lieu
+  * hashKey: key cua tung element trong value cua hashKey
+  * key => hasKey i : value i
   * */
   public void deleteHash(String key, String hashKey){
     try {
-      redisTemplate.opsForHash().delete(hashKey, key);
+      redisTemplate.opsForHash().delete(key, hashKey);
     }catch (Exception e){
       e.printStackTrace();
     }
@@ -65,30 +69,17 @@ public class RedisService {
 
   public Object getHash(String key, String hashKey){
     try {
-      return redisTemplate.opsForHash().get(hashKey, key);
+      return redisTemplate.opsForHash().get(key, hashKey);
     }catch (Exception e){
       return null;
-    }
-  }
-
-  public void createHash(String key, String hashKey, Object value, CacheTime cacheTime){
-    try {
-      delete(hashKey);
-      redisTemplate.opsForHash().put(hashKey, key, value);
-
-      if(cacheTime == CacheTime.NO_LIMIT) return;
-      if(cacheTime == null) cacheTime = CacheTime.ONE_WEEK;
-      redisTemplate.expire(hashKey, cacheTime.time(), TimeUnit.MILLISECONDS);
-    }catch (Exception e){
-      e.printStackTrace();
     }
   }
 
   public void updateHash(String key, String hashKey, Object value){
     try {
       deleteHash(key, hashKey);
-      redisTemplate.opsForHash().putIfAbsent(hashKey, key, value);
-      redisTemplate.expire(hashKey, CacheTime.ONE_WEEK.time(), TimeUnit.MILLISECONDS);
+      redisTemplate.opsForHash().putIfAbsent(key, hashKey, value);
+      redisTemplate.expire(key, CacheTime.ONE_WEEK.time(), TimeUnit.MILLISECONDS);
     }catch (Exception e){
       e.printStackTrace();
     }
@@ -97,28 +88,32 @@ public class RedisService {
   public void addElemntHash(String key, String hashKey, Object value){
     try {
       deleteHash(key, hashKey);
-      redisTemplate.opsForHash().putIfAbsent(hashKey, key, value);
-      redisTemplate.expire(hashKey, CacheTime.ONE_WEEK.time(), TimeUnit.MILLISECONDS);
+      redisTemplate.opsForHash().putIfAbsent(key, hashKey, value);
+      redisTemplate.expire(key, CacheTime.ONE_WEEK.time(), TimeUnit.MILLISECONDS);
     }catch (Exception e){
       e.printStackTrace();
     }
   }
 
-  public void putHashAll(String hashKey, Map<Object,Object> value, CacheTime cacheTime){
+  public void putHashAll(String key, Map<Object,Object> value, CacheTime cacheTime){
     try {
-      redisTemplate.opsForHash().putAll(hashKey, value);
+      redisTemplate.opsForHash().putAll(key, value);
 
       if(cacheTime == CacheTime.NO_LIMIT) return;
       if(cacheTime == null) cacheTime = CacheTime.ONE_WEEK;
-      redisTemplate.expire(hashKey, cacheTime.time(), TimeUnit.MILLISECONDS);
+      redisTemplate.expire(key, cacheTime.time(), TimeUnit.MILLISECONDS);
     }catch (Exception e){
       e.printStackTrace();
     }
   }
 
-  public Map<Object, Object> getHashAll(String hashKey){
+  public <T> List<T> getHashAll(String key, Class<T> tClass){
     try {
-      return redisTemplate.opsForHash().entries(hashKey);
+      List<T> list = redisTemplate.opsForHash().entries(key).values()
+        .stream()
+        .map(e->JSONUtils.toEntity((String) e,tClass))
+        .collect(Collectors.toList());
+      return list.isEmpty()?null:list;
     }catch (Exception e){
       return null;
     }
@@ -144,6 +139,27 @@ public class RedisService {
     }
   }
 
+  //====================================================== STRING ==================================
+  public void setEntity(String key, Object value, CacheTime cacheTime){
+    try {
+      if(cacheTime == null) cacheTime = CacheTime.ONE_WEEK;
 
+      if(cacheTime == CacheTime.NO_LIMIT){
+        redisTemplate.opsForValue().set(key, value);
+      }
+      redisTemplate.opsForValue().set(key, value, cacheTime.time(), TimeUnit.MILLISECONDS);
+    }catch (Exception e){
+      e.printStackTrace();
+    }
+  }
+
+  public <T> T getEntity(String key, Class<T> tClass){
+    try {
+      return JSONUtils.toEntity((String) redisTemplate.opsForValue().get(key), tClass);
+    }catch (Exception e){
+      e.printStackTrace();
+      return null;
+    }
+  }
 
 }

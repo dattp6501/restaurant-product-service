@@ -115,10 +115,15 @@ public class TableService extends com.dattp.productservice.service.Service {
     /*
      * add comment
      * */
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     public boolean addComment(CommentTable comment){
         comment.setUser(new User(jwtService.getUserId(), jwtService.getUsername()));
-        return tableStorage.addCommentTable(comment);
+        //save to db
+        tableStorage.addCommentTable(comment);
+        //cache
+        String key = RedisKeyConfig.genKeyCommentTable(comment.getTable().getId());
+        if(!redisService.hasKey(key)) tableStorage.initCommentTableCache(comment.getTable().getId());
+        redisService.addElemntHash(key, comment.getUser().getId().toString(), comment);
+        return true;
     }
 
 
@@ -137,25 +142,33 @@ public class TableService extends com.dattp.productservice.service.Service {
     * get table detail
     * */
     public TableResponseDTO getDetailDB(Long id){
-        return new TableResponseDTO(tableRepository.findById(id).orElseThrow());
+        return new TableResponseDTO(tableStorage.getDetailFromDB(id));
     }
     /*
     * create table
     * */
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     public TableResponseDTO create(TableCreateRequestDTO tableReq) {
-        TableE table = new TableE(tableReq);
-      return new TableResponseDTO(tableStorage.addToCacheAndDB(table));
+        //save to db
+        TableE table = tableStorage.saveToDB(new TableE(tableReq));
+        //cache
+        tableStorage.addToCache(table);
+        tableStorage.addTableOverview(table);
+        //response
+        return new TableResponseDTO(table);
     }
     /*
      * update table
      * */
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     public TableResponseDTO update(TableUpdateRequestDTO dto){
-        TableE table = tableRepository.findById(dto.getId()).orElseThrow();
+        TableE table = tableRepository.findById(dto.getId()).orElseThrow(()-> new BadRequestException(String.format("table(id=%d) not found", dto.getId())));
         table.copyProperties(dto);
+        //save to db
+        table = tableStorage.saveToDB(table);
         //cache
-        return new TableResponseDTO(tableStorage.updateFromCacheAndDB(table));
+        tableStorage.addToCache(table);
+        tableStorage.updateTableOverview(table);
+        //response
+        return new TableResponseDTO(table);
     }
     /*
     * create table with excel

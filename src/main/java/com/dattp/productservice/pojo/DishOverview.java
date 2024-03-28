@@ -1,6 +1,7 @@
 package com.dattp.productservice.pojo;
 
 import com.dattp.productservice.entity.Dish;
+import com.dattp.productservice.utils.JSONUtils;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.BeanUtils;
@@ -30,5 +31,10 @@ public class DishOverview implements Serializable {
     Dish dish = new Dish();
     BeanUtils.copyProperties(dishOverview, dish);
     return dish;
+  }
+
+  @Override
+  public String toString() {
+    return JSONUtils.toJson(this);
   }
 }

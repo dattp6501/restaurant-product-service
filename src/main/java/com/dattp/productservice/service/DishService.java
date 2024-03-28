@@ -12,13 +12,11 @@ import com.dattp.productservice.dto.dish.DishResponseDTO;
 import com.dattp.productservice.dto.dish.DishUpdateRequestDTO;
 import com.dattp.productservice.entity.User;
 import com.dattp.productservice.entity.state.DishState;
-import com.dattp.productservice.pojo.DishOverview;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.dattp.productservice.entity.CommentDish;
@@ -51,10 +49,17 @@ public class DishService extends com.dattp.productservice.service.Service {
     /*
      * add comment to dish
      * */
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     public boolean addComment(CommentDish comment){
         comment.setUser(new User(jwtService.getUserId(), jwtService.getUsername()));
-        return dishStorage.addCommentDish(comment);
+        //save to db
+        dishStorage.addCommentDish(comment);
+        //cache
+        String key = RedisKeyConfig.genKeyCommentDish(comment.getDish().getId());
+        if(!redisService.hasKey(key))
+            dishStorage.initCommentDishCache(comment.getDish().getId());
+        else redisService.addElemntHash(key, comment.getUser().getId().toString(), comment);
+
+        return true;
     }
 
 
@@ -64,41 +69,50 @@ public class DishService extends com.dattp.productservice.service.Service {
     //==============================    ADMIN   ===================================
     //=============================================================================
     public List<DishResponseDTO> getDishsFromDB(Pageable pageable){
-        return dishRepository.findAll(pageable).stream()
+        return dishStorage.findAll(pageable).stream()
           .map(DishResponseDTO::new)
           .collect(Collectors.toList());
     }
 
     public DishResponseDTO getDetailFromDB(Long id){
-        return new DishResponseDTO(dishRepository.findById(id).orElseThrow());
+        return new DishResponseDTO(dishStorage.getDetailDishFromDB(id));
     }
 
     /*
     * create dish
     * */
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     public DishResponseDTO create(DishCreateRequestDTO dishReq){
-        Dish dish = new Dish(dishReq);
+        //save db
+        Dish dish = dishStorage.saveToDB(new Dish(dishReq));
+        //cache
+        dishStorage.addToCache(dish);
+        dishStorage.addOverviewDishToCache(dish);
         //response
-        return new DishResponseDTO(dishStorage.addToCacheAndDb(dish));
+        return new DishResponseDTO(dish);
     }
 
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     public DishResponseDTO update(DishUpdateRequestDTO dto){
-        Dish dish = dishRepository.findById(dto.getId()).orElseThrow();
+        Dish dish = dishStorage.getDetailDishFromDB(dto.getId());
         dish.copyProperties(dto);
-        return new DishResponseDTO(dishStorage.updateFromCacheAndDb(dish));
+        //save db
+        dish = dishStorage.saveToDB(dish);
+        //cache
+        dishStorage.addToCache(dish);
+        dishStorage.updateOverviewDishFromCache(dish);
+        //
+        return new DishResponseDTO(dish);
     }
     /*
     * create dish by excel
     * */
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     public Boolean createByExcel(InputStream inputStream) throws IOException {
         List<Dish> listDish = readXlsxDish(inputStream);
-        listDish = dishRepository.saveAll(listDish);
+        listDish = dishStorage.saveAll(listDish);
         // cache
         //list dish overview
-        if(!redisService.hasKey(RedisKeyConfig.genKeyAllDishOverview())) dishStorage.initDishOverviewCache();
+        if(!redisService.hasKey(RedisKeyConfig.genKeyAllDishOverview()))
+            dishStorage.initDishOverviewCache();
+
         listDish.forEach(dish -> {
             //list dish overview
             dishStorage.addOverviewDishToCache(dish);
