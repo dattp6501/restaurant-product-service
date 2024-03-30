@@ -5,6 +5,7 @@ import com.dattp.productservice.repository.CommentTableRepository;
 import com.dattp.productservice.repository.TableRepository;
 import com.dattp.productservice.storage.DishStorage;
 import com.dattp.productservice.storage.TableStorage;
+import com.dattp.productservice.storage.TokenStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.client.RestTemplate;
@@ -17,6 +18,7 @@ public class Service {
 
   @Autowired @Lazy protected DishStorage dishStorage;
   @Autowired @Lazy protected TableStorage tableStorage;
+  @Autowired @Lazy protected TokenStorage tokenStorage;
 
   @Autowired @Lazy protected CommentDishRepository CommentDishRepository;
   @Autowired @Lazy protected TableRepository tableRepository;

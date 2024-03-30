@@ -5,6 +5,10 @@ package com.dattp.productservice.config.redis;
 public class RedisKeyConfig {
   public static final String PREFIX_APP = "restaurant::";
 
+  public static final String PREFIX_AUTH = PREFIX_APP + "auth::";
+
+  public static final String FREFIX_TOKEN = PREFIX_AUTH + "token::";
+
   public static final String PREFIX_PRODUCT = PREFIX_APP + "product::";
 
   public static final String PREFIX_TABLE = PREFIX_PRODUCT + "table::";
@@ -30,4 +34,8 @@ public class RedisKeyConfig {
     return PREFIX_TABLE + tableId;
   }
   public static String genKeyCommentTable(Long tableId){return PREFIX_TABLE + tableId + "::comment";}
+
+  public static String genKeyToken(Long userId){
+    return FREFIX_TOKEN + userId;
+  }
 }
