@@ -3,6 +3,7 @@ package com.dattp.productservice.service;
 import com.dattp.productservice.repository.CommentDishRepository;
 import com.dattp.productservice.repository.CommentTableRepository;
 import com.dattp.productservice.repository.TableRepository;
+import com.dattp.productservice.storage.CartStorage;
 import com.dattp.productservice.storage.DishStorage;
 import com.dattp.productservice.storage.TableStorage;
 import com.dattp.productservice.storage.TokenStorage;
@@ -19,6 +20,7 @@ public class Service {
   @Autowired @Lazy protected DishStorage dishStorage;
   @Autowired @Lazy protected TableStorage tableStorage;
   @Autowired @Lazy protected TokenStorage tokenStorage;
+  @Autowired @Lazy protected CartStorage cartStorage;
 
   @Autowired @Lazy protected KafkaService kafkaService;
 
