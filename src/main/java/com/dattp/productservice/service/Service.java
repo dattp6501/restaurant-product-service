@@ -20,6 +20,8 @@ public class Service {
   @Autowired @Lazy protected TableStorage tableStorage;
   @Autowired @Lazy protected TokenStorage tokenStorage;
 
+  @Autowired @Lazy protected KafkaService kafkaService;
+
   @Autowired @Lazy protected CommentDishRepository CommentDishRepository;
   @Autowired @Lazy protected TableRepository tableRepository;
   @Autowired @Lazy protected CommentTableRepository commentTableRepository;

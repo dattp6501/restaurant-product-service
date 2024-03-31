@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
+import com.dattp.productservice.config.kafka.KafkaTopicConfig;
 import com.dattp.productservice.config.redis.RedisKeyConfig;
 import com.dattp.productservice.dto.dish.CommentDishResponseDTO;
 import com.dattp.productservice.dto.dish.DishCreateRequestDTO;
@@ -97,7 +98,9 @@ public class DishService extends com.dattp.productservice.service.Service {
         dishStorage.addToCache(dish);
         dishStorage.addOverviewDishToCache(dish);
         //response
-        return new DishResponseDTO(dish);
+        DishResponseDTO resp = new DishResponseDTO(dish);
+        kafkaService.send(KafkaTopicConfig.NEW_DISH_TOPIC, resp);
+        return resp;
     }
 
     public DishResponseDTO update(DishUpdateRequestDTO dto){
@@ -108,8 +111,10 @@ public class DishService extends com.dattp.productservice.service.Service {
         //cache
         dishStorage.addToCache(dish);
         dishStorage.updateOverviewDishFromCache(dish);
-        //
-        return new DishResponseDTO(dish);
+        //resp
+        DishResponseDTO resp = new DishResponseDTO(dish);
+        kafkaService.send(KafkaTopicConfig.UPDATE_DISH_TOPIC, resp);
+        return resp;
     }
     /*
     * create dish by excel
