@@ -22,6 +22,7 @@ public class SecurityConfig{
     private JWTAuthenticationFilter jwtAuthenticationFilter;
 
   public static final String[] pathPublic= {
+    "/isRunning",
     "/api/product/user/table",
     "/api/product/user/table/*",
     "/api/product/user/table/*/comment",
