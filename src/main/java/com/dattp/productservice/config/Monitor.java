@@ -37,7 +37,7 @@ public class Monitor {
     if(Boolean.TRUE.equals(ok)){
       String message =
         DateUtils.getcurrentLocalDateTime()
-          .plusHours(7)
+          .plusHours(6)
           .format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd"))
         +": PRODUCT ===> RUNNING";
       HttpHeaders headers = new HttpHeaders();
