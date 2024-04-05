@@ -30,7 +30,7 @@ public class Monitor {
 
   @Autowired private RestTemplate restTemplate;
 
-  @Scheduled(initialDelay = 2000, fixedDelay = 900000)
+  @Scheduled(initialDelay = 2000, fixedDelay = 600000)
   public void isRunning(){
     //check is running
     Boolean ok = restTemplate.getForObject("http://localhost:"+port+"/isRunning", Boolean.class);
