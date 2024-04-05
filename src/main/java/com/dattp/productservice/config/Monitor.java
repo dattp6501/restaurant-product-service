@@ -33,8 +33,8 @@ public class Monitor {
   @Scheduled(initialDelay = 2000, fixedDelay = 600000)
   public void isRunning(){
     //check is running
-    Boolean ok = restTemplate.getForObject("http://localhost:"+port+"/isRunning", Boolean.class);
-    if(Boolean.TRUE.equals(ok)){
+    // Boolean ok = restTemplate.getForObject("http://localhost:"+port+"/isRunning", Boolean.class);
+    // if(Boolean.TRUE.equals(ok)){
       String message =
         DateUtils.getcurrentLocalDateTime()
           .plusHours(6)
@@ -53,6 +53,6 @@ public class Monitor {
 
       String url = String.format("https://api.telegram.org/bot%s/sendMessage", monitorBotToken);
       restTemplate.postForObject(url, requestEntity, Object.class);
-    }
+    // }
   }
 }
