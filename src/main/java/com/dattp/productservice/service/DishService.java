@@ -132,6 +132,8 @@ public class DishService extends com.dattp.productservice.service.Service {
             dishStorage.addOverviewDishToCache(dish);
             //detail dish
             dishStorage.addToCache(dish);
+            //send kafka
+            kafkaService.send(KafkaTopicConfig.NEW_TABLE_TOPIC, new DishResponseDTO(dish));
         });
         return true;
     }

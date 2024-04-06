@@ -79,6 +79,11 @@ public class TableStorage extends Storage{
 
   //=================================== SAVE TABLE ========================
   @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
+  public List<TableE> saveAllToDB(List<TableE> tables){
+    return tableRepository.saveAll(tables);
+  }
+
+  @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
   public TableE saveToDB(TableE table){
     return tableRepository.save(table);
   }

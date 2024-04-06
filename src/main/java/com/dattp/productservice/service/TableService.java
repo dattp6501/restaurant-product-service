@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.dattp.productservice.config.kafka.KafkaTopicConfig;
 import com.dattp.productservice.config.redis.RedisKeyConfig;
 import com.dattp.productservice.dto.table.CommentTableResponseDTO;
 import com.dattp.productservice.dto.table.TableCreateRequestDTO;
@@ -35,9 +36,6 @@ import com.dattp.productservice.dto.resttemplate.ResponseListTableFreeTimeDTO;
 import com.dattp.productservice.entity.CommentTable;
 import com.dattp.productservice.entity.TableE;
 import com.dattp.productservice.exception.BadRequestException;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -157,7 +155,9 @@ public class TableService extends com.dattp.productservice.service.Service {
         tableStorage.addToCache(table);
         tableStorage.addTableOverview(table);
         //response
-        return new TableResponseDTO(table);
+        TableResponseDTO resp = new TableResponseDTO(table);
+        kafkaService.send(KafkaTopicConfig.NEW_TABLE_TOPIC, resp);
+        return resp;
     }
     /*
      * update table
@@ -171,15 +171,16 @@ public class TableService extends com.dattp.productservice.service.Service {
         tableStorage.addToCache(table);
         tableStorage.updateTableOverview(table);
         //response
-        return new TableResponseDTO(table);
+        TableResponseDTO resp = new TableResponseDTO(table);
+        kafkaService.send(KafkaTopicConfig.UPDATE_TABLE_TOPIC, resp);
+        return resp;
     }
     /*
     * create table with excel
     * */
-    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
     public Boolean createByExcel(InputStream inputStream) throws IOException {
         List<TableE> tables = readXlsxTable(inputStream);
-        tables = tableRepository.saveAll(tables);
+        tables = tableStorage.saveAllToDB(tables);
         //cache
         //overview
         if(!redisService.hasKey(RedisKeyConfig.genKeyAllTableOverview()))
@@ -189,6 +190,8 @@ public class TableService extends com.dattp.productservice.service.Service {
             tableStorage.addToCache(t);
             //over view
             tableStorage.addTableOverview(t);
+            //send kafka
+            kafkaService.send(KafkaTopicConfig.NEW_TABLE_TOPIC, new TableResponseDTO(t));
           }
         );
         return true;
