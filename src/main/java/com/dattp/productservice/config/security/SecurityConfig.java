@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -28,19 +29,22 @@ public class SecurityConfig{
     "/api/product/user/table/*/comment",
     "/api/product/user/dish",
     "/api/product/user/dish/*",
-    "/api/product/user/dish/*/comment"
+    "/api/product/user/dish/*/comment",
+    "/swagger-resources/**",
+    "/swagger-ui.html",
+    "/v2/api-docs",
+    "/webjars/**",
+    "/swagger-ui/**"
   };
 
 
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-        http.csrf(csrf -> csrf.disable());
+        http.csrf(AbstractHttpConfigurer::disable);
         http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.authorizeHttpRequests(auth -> auth
-                // .antMatchers("/**").permitAll()
-//                .antMatchers("/h2-console/**").permitAll()//.hasAuthority("ROLE_ADMIN")
                 .antMatchers(pathPublic).permitAll()
                 .anyRequest().authenticated()
                 .and()

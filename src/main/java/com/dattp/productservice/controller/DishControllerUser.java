@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 
+import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -48,6 +49,7 @@ public class DishControllerUser extends Controller{
     }
 
     @PostMapping("comment")
+    @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
     public ResponseEntity<ResponseDTO> addComment(@RequestBody @Valid CommentDishRequestDTO CDR) throws Exception{
         if(!dishService.addComment(new CommentDish(CDR))) throw new Exception("Không đánh giá được sản phẩm");

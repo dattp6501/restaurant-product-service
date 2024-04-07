@@ -1,3 +1,5 @@
+# REFERENCE
+[Doc API](https://product-restaurant-dattp.onrender.com/swagger-ui/index.html)
 # change password
 mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY '[newpassword]';
 # config mysql docker

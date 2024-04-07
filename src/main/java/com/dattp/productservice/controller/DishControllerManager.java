@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 
+import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
 import com.dattp.productservice.dto.dish.DishUpdateRequestDTO;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,7 @@ import com.dattp.productservice.dto.ResponseDTO;
 @RequestMapping("/api/product/manage/dish")
 public class DishControllerManager extends Controller{
     @GetMapping("")
+    @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_UPDATE","ROLE_PRODUCT_DELETE"})
     public ResponseEntity<?> getDishs(Pageable pageable){//page=?&size=?
         return ResponseEntity.ok().body(
@@ -36,8 +38,8 @@ public class DishControllerManager extends Controller{
         );
     }
 
-    @GetMapping
-    @RequestMapping("/{dish_id}")
+    @GetMapping("/{dish_id}")
+    @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_UPDATE","ROLE_PRODUCT_DELETE"})
     public ResponseEntity<ResponseDTO> getDishDetail(@PathVariable("dish_id") long id){
         return ResponseEntity.ok().body(
@@ -51,6 +53,7 @@ public class DishControllerManager extends Controller{
 
 
     @PostMapping("/save")
+    @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_NEW"})
     public ResponseEntity<?> create(@RequestBody @Valid DishCreateRequestDTO dishReq){
         return ResponseEntity.ok().body(
@@ -62,6 +65,7 @@ public class DishControllerManager extends Controller{
     }
 
     @PostMapping("/save_with_excel")
+    @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_NEW"})
     public ResponseEntity<?> createByExcel(@RequestParam("file") MultipartFile file) throws IOException{
         return ResponseEntity.ok().body(
@@ -74,8 +78,8 @@ public class DishControllerManager extends Controller{
     }
 
 
-    @PostMapping
-    @RequestMapping("/update")
+    @PostMapping("/update")
+    @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_UPDATE"})
     public ResponseEntity<?> updateDish(@RequestBody @Valid DishUpdateRequestDTO dishRequestDTO){
         return ResponseEntity.ok().body(

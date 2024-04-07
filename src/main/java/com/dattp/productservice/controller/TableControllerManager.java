@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 
+import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
 import com.dattp.productservice.dto.table.TableUpdateRequestDTO;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,7 @@ public class TableControllerManager extends Controller{
     * get tables
     * */
     @GetMapping(value = "")
+    @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_UPDATE","ROLE_PRODUCT_DELETE"})
     public ResponseEntity<ResponseDTO> getAllTable(Pageable pageable){
         return ResponseEntity.ok().body(
@@ -43,6 +45,7 @@ public class TableControllerManager extends Controller{
     * get table detail
     * */
     @GetMapping("/{table_id}")
+    @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_PRODUCT_UPDATE","ROLE_PRODUCT_DELETE"})
     public ResponseEntity<ResponseDTO> getTableDetail(@PathVariable("table_id") Long id){
         return ResponseEntity.ok().body(
@@ -57,6 +60,7 @@ public class TableControllerManager extends Controller{
     * create table
     * */
     @PostMapping(value = "/save")
+    @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_NEW"})
     public ResponseEntity<ResponseDTO> create(@RequestBody @Valid TableCreateRequestDTO tableReq){
         return ResponseEntity.ok().body(
@@ -71,6 +75,7 @@ public class TableControllerManager extends Controller{
     * create table with excel
     * */
     @PostMapping(value = "/save_with_excel")
+    @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_NEW"})
     public ResponseEntity<ResponseDTO> save(@RequestParam("file")MultipartFile file) throws IOException{
         return ResponseEntity.ok().body(
@@ -83,6 +88,7 @@ public class TableControllerManager extends Controller{
     }
 
     @PostMapping(value = "/update_table")
+    @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_UPDATE"})
     public ResponseEntity<ResponseDTO> updateTable(@RequestBody @Valid TableUpdateRequestDTO dto){
         return ResponseEntity.ok().body(

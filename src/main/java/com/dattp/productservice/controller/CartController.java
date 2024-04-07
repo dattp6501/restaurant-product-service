@@ -1,5 +1,6 @@
 package com.dattp.productservice.controller;
 
+import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
 import com.dattp.productservice.dto.ResponseDTO;
 import com.dattp.productservice.dto.dish.CommentDishRequestDTO;
 import com.dattp.productservice.dto.dish.DishInCartRequestDTO;
@@ -18,6 +19,7 @@ import javax.validation.Valid;
 @RequestMapping("/api/product/user/cart")
 public class CartController extends Controller{
   @PostMapping("/dish")
+  @AddAuthorizedDocAPI
   @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
   public ResponseEntity<ResponseDTO> addDishToCart(@RequestBody @Valid DishInCartRequestDTO dto) throws Exception{
     cartService.addDishToCart(dto);
