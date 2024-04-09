@@ -9,6 +9,7 @@ import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
 import com.dattp.productservice.dto.table.TableUpdateRequestDTO;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +29,7 @@ public class TableControllerManager extends Controller{
     /*
     * get tables
     * */
-    @GetMapping(value = "")
+    @GetMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE})
     @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_UPDATE","ROLE_PRODUCT_DELETE"})
     public ResponseEntity<ResponseDTO> getAllTable(Pageable pageable){
@@ -44,7 +45,7 @@ public class TableControllerManager extends Controller{
     /*
     * get table detail
     * */
-    @GetMapping("/{table_id}")
+    @GetMapping(value = "/{table_id}", produces = {MediaType.APPLICATION_JSON_VALUE})
     @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_PRODUCT_UPDATE","ROLE_PRODUCT_DELETE"})
     public ResponseEntity<ResponseDTO> getTableDetail(@PathVariable("table_id") Long id){
@@ -59,7 +60,7 @@ public class TableControllerManager extends Controller{
     /*
     * create table
     * */
-    @PostMapping(value = "/save")
+    @PostMapping(value = "/save", produces = {MediaType.APPLICATION_JSON_VALUE})
     @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_NEW"})
     public ResponseEntity<ResponseDTO> create(@RequestBody @Valid TableCreateRequestDTO tableReq){
@@ -74,7 +75,7 @@ public class TableControllerManager extends Controller{
     /*
     * create table with excel
     * */
-    @PostMapping(value = "/save_with_excel")
+    @PostMapping(value = "/save_with_excel", produces = {MediaType.APPLICATION_JSON_VALUE})
     @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_NEW"})
     public ResponseEntity<ResponseDTO> save(@RequestParam("file")MultipartFile file) throws IOException{
@@ -87,7 +88,7 @@ public class TableControllerManager extends Controller{
         );
     }
 
-    @PostMapping(value = "/update_table")
+    @PostMapping(value = "/update_table", produces = {MediaType.APPLICATION_JSON_VALUE})
     @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_UPDATE"})
     public ResponseEntity<ResponseDTO> updateTable(@RequestBody @Valid TableUpdateRequestDTO dto){

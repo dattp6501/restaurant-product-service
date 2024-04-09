@@ -6,6 +6,7 @@ import com.dattp.productservice.dto.dish.CommentDishRequestDTO;
 import com.dattp.productservice.dto.dish.DishInCartRequestDTO;
 import com.dattp.productservice.entity.CommentDish;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,7 +19,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api/product/user/cart")
 public class CartController extends Controller{
-  @PostMapping("/dish")
+  @PostMapping(value = "/dish", produces = {MediaType.APPLICATION_JSON_VALUE})
   @AddAuthorizedDocAPI
   @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
   public ResponseEntity<ResponseDTO> addDishToCart(@RequestBody @Valid DishInCartRequestDTO dto) throws Exception{

@@ -9,6 +9,7 @@ import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
 import com.dattp.productservice.dto.dish.DishUpdateRequestDTO;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +26,7 @@ import com.dattp.productservice.dto.ResponseDTO;
 @RestController
 @RequestMapping("/api/product/manage/dish")
 public class DishControllerManager extends Controller{
-    @GetMapping("")
+    @GetMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE})
     @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_UPDATE","ROLE_PRODUCT_DELETE"})
     public ResponseEntity<?> getDishs(Pageable pageable){//page=?&size=?
@@ -38,7 +39,7 @@ public class DishControllerManager extends Controller{
         );
     }
 
-    @GetMapping("/{dish_id}")
+    @GetMapping(value = "/{dish_id}", produces = {MediaType.APPLICATION_JSON_VALUE})
     @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_UPDATE","ROLE_PRODUCT_DELETE"})
     public ResponseEntity<ResponseDTO> getDishDetail(@PathVariable("dish_id") long id){
@@ -52,7 +53,7 @@ public class DishControllerManager extends Controller{
     }
 
 
-    @PostMapping("/save")
+    @PostMapping(value = "/save", produces = {MediaType.APPLICATION_JSON_VALUE})
     @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_NEW"})
     public ResponseEntity<?> create(@RequestBody @Valid DishCreateRequestDTO dishReq){
@@ -64,7 +65,7 @@ public class DishControllerManager extends Controller{
         );
     }
 
-    @PostMapping("/save_with_excel")
+    @PostMapping(value = "/save_with_excel", produces = {MediaType.APPLICATION_JSON_VALUE})
     @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_NEW"})
     public ResponseEntity<?> createByExcel(@RequestParam("file") MultipartFile file) throws IOException{
@@ -78,7 +79,7 @@ public class DishControllerManager extends Controller{
     }
 
 
-    @PostMapping("/update")
+    @PostMapping(value = "/update", produces = {MediaType.APPLICATION_JSON_VALUE})
     @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_UPDATE"})
     public ResponseEntity<?> updateDish(@RequestBody @Valid DishUpdateRequestDTO dishRequestDTO){
