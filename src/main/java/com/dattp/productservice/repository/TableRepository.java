@@ -13,6 +13,7 @@ import com.dattp.productservice.entity.TableE;
 
 public interface TableRepository extends JpaRepository<TableE,Long>{
     List<TableE> findAllByStateIn(List<TableState> states);
+    List<TableE> findAllByIdInAndStateIn(List<Long> ids, List<TableState> states);
 
     @Query(
         value = "SELECT * FROM TABLE_ t WHERE t.id NOT IN :id",

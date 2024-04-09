@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.dattp.productservice.dto.dish.DishResponseDTO;
+import com.dattp.productservice.dto.kafka.booking.BookingResponseDTO;
 import com.dattp.productservice.dto.table.TableResponseDTO;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -14,8 +15,6 @@ import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.kafka.support.serializer.JsonSerializer;
-
-import com.dattp.productservice.dto.kafka.BookingRequestKafkaDTO;
 
 
 @Configuration
@@ -50,11 +49,11 @@ public class KafkaProducerConfig {
     }
     // producer booking
     @Bean
-    public ProducerFactory<String,BookingRequestKafkaDTO> producerFactoryBooking(){
+    public ProducerFactory<String, BookingResponseDTO> producerFactoryBooking(){
         return new DefaultKafkaProducerFactory<>(producerConfig());
     }
     @Bean
-    public KafkaTemplate<String,BookingRequestKafkaDTO> kafkaTemplateBooking(ProducerFactory<String,BookingRequestKafkaDTO> producerFactory){
+    public KafkaTemplate<String,BookingResponseDTO> kafkaTemplateBooking(ProducerFactory<String,BookingResponseDTO> producerFactory){
         return new KafkaTemplate<>(producerFactory);
     }
     //dish

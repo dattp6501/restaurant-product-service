@@ -9,6 +9,7 @@ import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,20 +27,20 @@ import com.dattp.productservice.entity.User;
 @RestController
 @RequestMapping("/api/product/user/dish")
 public class DishControllerUser extends Controller{
-    @GetMapping("")
+    @GetMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getDishs(Pageable pageable){//page=?&size=?
-        return ResponseEntity.ok().body(
+        return ResponseEntity.ok(
             new ResponseDTO(
-                HttpStatus.OK.value(), 
+                HttpStatus.OK.value(),
                 "Thành công",
                 dishService.getDishsOverview(pageable)
             )
         );
     }
 
-    @GetMapping("{dish_id}")
+    @GetMapping(value = "{dish_id}", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<ResponseDTO> getDishDetail(@PathVariable("dish_id") long id){
-        return ResponseEntity.ok().body(
+        return ResponseEntity.ok(
           new ResponseDTO(
             HttpStatus.OK.value(),
             "Thành công",
@@ -48,12 +49,12 @@ public class DishControllerUser extends Controller{
         );
     }
 
-    @PostMapping("comment")
+    @PostMapping(value = "comment", produces = {MediaType.APPLICATION_JSON_VALUE})
     @AddAuthorizedDocAPI
     @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
     public ResponseEntity<ResponseDTO> addComment(@RequestBody @Valid CommentDishRequestDTO CDR) throws Exception{
         if(!dishService.addComment(new CommentDish(CDR))) throw new Exception("Không đánh giá được sản phẩm");
-        return ResponseEntity.ok().body(
+        return ResponseEntity.ok(
             new ResponseDTO(
                 HttpStatus.OK.value(), 
                 "Thành công", 
@@ -62,7 +63,7 @@ public class DishControllerUser extends Controller{
         );
     }
 
-    @GetMapping("/{dishId}/comment")
+    @GetMapping(value = "/{dishId}/comment", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getComment(@PathVariable("dishId") Long dishId, Pageable pageable){
         return ResponseEntity.ok().body(
           new ResponseDTO(

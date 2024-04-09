@@ -15,6 +15,7 @@ public class RedisKeyConfig {
   public static final String PREFIX_ORDER = PREFIX_APP + "order::";
   public static final String PREFIX_CART = PREFIX_ORDER + "cart::";
   public static final String PREFIX_CART_DISH = PREFIX_CART + "dish::";
+  public static final String PREFIX_CART_TABLE = PREFIX_CART + "table::";
   //=====================================================================================
   //                                      KEY
   //=====================================================================================
@@ -43,5 +44,8 @@ public class RedisKeyConfig {
   //================================== PRODUCT ==========================================
   public static String genKeyCartDish(Long userId){
     return PREFIX_CART_DISH + userId;
+  }
+  public static String genKeyCartTable(Long userId){
+    return PREFIX_CART_TABLE + userId;
   }
 }

@@ -16,6 +16,9 @@ public class KafkaTopicConfig {
   public static final String NEW_TABLE_TOPIC = "com.dattp.restaurant.product.new_table";
   public static final String UPDATE_TABLE_TOPIC = "com.dattp.restaurant.product.update_table";
 
+  public static final String NEW_BOOKING_TOPIC = "com.dattp.restaurant.order.new_order";
+  public static final String PROCESS_BOOKING_TOPIC = "com.dattp.restaurant.order.process_order";
+
   @Bean
   public NewTopic newDishTopic(){
     return TopicBuilder.name(NEW_DISH_TOPIC)
@@ -42,23 +45,11 @@ public class KafkaTopicConfig {
       .build();
   }
 
-    // booking
-//    @Bean
-//    public NewTopic checkOrderTopic(){
-//        return TopicBuilder.name("checkOrder").build();
-//    }
-//    @Bean
-//    public NewTopic newOrderTopic(){
-//        return TopicBuilder.name("newOrder").build();
-//    }
-//    // dish
-//    @Bean
-//    public NewTopic checkBookedDishTopic(){//check info booked dish
-//        return TopicBuilder.name("checkBookedDish").build();
-//    }
-//
-//    @Bean
-//    public NewTopic resultCheckBookedDishTopic(){//result check info booked dish
-//        return TopicBuilder.name("resultCheckBookedDish").build();
-//    }
+  // booking
+  @Bean
+  public NewTopic processBooking(){
+    return TopicBuilder.name(PROCESS_BOOKING_TOPIC)
+        .partitions(partition)
+        .build();
+  }
 }

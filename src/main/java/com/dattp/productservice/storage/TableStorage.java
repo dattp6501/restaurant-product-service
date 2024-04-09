@@ -57,6 +57,9 @@ public class TableStorage extends Storage{
   public Page<TableE> findAll(Pageable pageable){
     return tableRepository.findAll(pageable);
   }
+  public List<TableE> findAllTableReadyByIdInAndStateIn(List<Long> ids){
+    return tableRepository.findAllByIdInAndStateIn(ids, TableE.getListStatusReady());
+  }
   //================================ TABLE DETAIL =======================================
   /*
   * user

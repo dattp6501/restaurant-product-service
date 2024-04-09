@@ -86,5 +86,11 @@ public class TableE implements Serializable {
         this.updateAt = DateUtils.getCurrentMils();
     }
 
+    public static List<TableState> getListStatusReady(){
+        return List.of(TableState.ACTIVE, TableState.NEW);
+    }
 
+    public static List<TableState> getListStatusNotReady(){
+        return List.of(TableState.INACTIVE, TableState.DELETE);
+    }
 }
