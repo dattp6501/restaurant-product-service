@@ -38,6 +38,17 @@ public class DishControllerUser extends Controller{
         );
     }
 
+    @GetMapping(value = "/hot", produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> getDishsHot(Pageable pageable){//page=?&size=?
+        return ResponseEntity.ok(
+            new ResponseDTO(
+                HttpStatus.OK.value(),
+                "Thành công",
+                dishService.getDishsOverview(pageable)
+            )
+        );
+    }
+
     @GetMapping(value = "{dish_id}", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<ResponseDTO> getDishDetail(@PathVariable("dish_id") long id){
         return ResponseEntity.ok(

@@ -39,7 +39,7 @@ public class DishService extends com.dattp.productservice.service.Service {
         log.debug("====================================> TEST LOG ========================================");
         return dishStorage.findListFromCacheAndDB(pageable)
           .stream().map(DishResponseDTO::new)
-          .collect(Collectors.toList());
+          .collect(Collectors.toList()).subList(1, 11);
     }
     /*
      * get detail dish
