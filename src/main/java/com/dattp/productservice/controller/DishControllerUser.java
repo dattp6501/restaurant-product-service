@@ -44,7 +44,7 @@ public class DishControllerUser extends Controller{
             new ResponseDTO(
                 HttpStatus.OK.value(),
                 "Thành công",
-                dishService.getDishsOverview(pageable)
+                dishService.getDishsOverview(pageable).subList(1, 10)
             )
         );
     }
