@@ -41,6 +41,15 @@ public class DishService extends com.dattp.productservice.service.Service {
           .stream().map(DishResponseDTO::new)
           .collect(Collectors.toList());
     }
+
+    public List<DishResponseDTO> getDishsHot(Pageable pageable){
+        log.debug("====================================> TEST LOG ========================================");
+        List<DishResponseDTO> dishs = dishStorage.findListFromCacheAndDB(pageable)
+            .stream().map(DishResponseDTO::new)
+            .collect(Collectors.toList());
+        if(dishs.size()>10) return dishs.subList(0, 10);
+        return dishs;
+    }
     /*
      * get detail dish
      * */
