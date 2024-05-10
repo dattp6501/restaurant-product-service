@@ -15,6 +15,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
@@ -58,24 +60,30 @@ public class SecurityConfig{
         return http.build();
     }
 
-  // @Bean
-	// public WebMvcConfigurer corsConfigurer() {
-	// 	return new WebMvcConfigurer() {
-	// 		@Override
-	// 		public void addCorsMappings(CorsRegistry registry) {
-	// 			registry.addMapping("/**");
-	// 		}
-	// 	};
-	// }
-
   @Bean
-  public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(Arrays.asList("*"));
-    configuration.setAllowedMethods(Arrays.asList("*"));
-    configuration.setAllowedHeaders(Arrays.asList("*"));
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
-    return source;
-  }
+	public WebMvcConfigurer corsConfigurer() {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addCorsMappings(CorsRegistry registry) {
+				registry.addMapping("/**")
+        .allowedOrigins("*")
+        .allowedMethods("GET", "POST", "OPTIONS", "PUT")
+        .allowedHeaders("Content-Type", "X-Requested-With", "accept", "Origin", "Access-Control-Request-Method",
+                "Access-Control-Request-Headers")
+        .exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials")
+        .allowCredentials(true).maxAge(3600);
+			}
+		};
+	}
+
+  // @Bean
+  // public CorsConfigurationSource corsConfigurationSource() {
+  //   CorsConfiguration configuration = new CorsConfiguration();
+  //   configuration.setAllowedOrigins(Arrays.asList("*"));
+  //   configuration.setAllowedMethods(Arrays.asList("*"));
+  //   configuration.setAllowedHeaders(Arrays.asList("*"));
+  //   UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+  //   source.registerCorsConfiguration("/**", configuration);
+  //   return source;
+  // }
 }
