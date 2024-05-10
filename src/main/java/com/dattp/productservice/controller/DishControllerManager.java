@@ -26,7 +26,7 @@ import com.dattp.productservice.dto.ResponseDTO;
 
 @RestController
 @RequestMapping("/api/product/manage/dish")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class DishControllerManager extends Controller{
     @GetMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE})
     @AddAuthorizedDocAPI

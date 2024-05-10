@@ -17,7 +17,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/product/user/cart")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class CartController extends Controller{
   @PostMapping(value = "/dish", produces = {MediaType.APPLICATION_JSON_VALUE})
   @AddAuthorizedDocAPI

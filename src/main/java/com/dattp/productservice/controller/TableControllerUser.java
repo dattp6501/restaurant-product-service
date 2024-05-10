@@ -22,7 +22,7 @@ import com.dattp.productservice.entity.CommentTable;
 
 @RestController
 @RequestMapping("/api/product/user/table")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class TableControllerUser extends Controller{
     @GetMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE})
 //    @RolesAllowed({"ROLE_PRODUCT_ACCESS"})

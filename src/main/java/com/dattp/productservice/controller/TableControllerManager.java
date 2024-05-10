@@ -26,7 +26,7 @@ import com.dattp.productservice.dto.table.TableCreateRequestDTO;
 
 @RestController
 @RequestMapping("/api/product/manage/table")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class TableControllerManager extends Controller{
     /*
     * get tables

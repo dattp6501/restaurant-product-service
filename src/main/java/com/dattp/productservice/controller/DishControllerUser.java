@@ -1,17 +1,14 @@
 package com.dattp.productservice.controller;
 
-import java.util.Date;
-
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 
 import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,10 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.dattp.productservice.dto.dish.CommentDishRequestDTO;
 import com.dattp.productservice.dto.ResponseDTO;
 import com.dattp.productservice.entity.CommentDish;
-import com.dattp.productservice.entity.User;
 
 @RestController
 @RequestMapping("/api/product/user/dish")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class DishControllerUser extends Controller{
     @GetMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getDishs(Pageable pageable){//page=?&size=?
