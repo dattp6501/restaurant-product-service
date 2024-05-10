@@ -2,12 +2,11 @@ package com.dattp.productservice.controller;
 
 import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
 import com.dattp.productservice.dto.ResponseDTO;
-import com.dattp.productservice.dto.dish.CommentDishRequestDTO;
 import com.dattp.productservice.dto.dish.DishInCartRequestDTO;
-import com.dattp.productservice.entity.CommentDish;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +17,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/product/user/cart")
+@CrossOrigin(origins = "*")
 public class CartController extends Controller{
   @PostMapping(value = "/dish", produces = {MediaType.APPLICATION_JSON_VALUE})
   @AddAuthorizedDocAPI
