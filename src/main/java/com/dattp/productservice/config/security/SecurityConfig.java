@@ -1,6 +1,7 @@
 package com.dattp.productservice.config.security;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -37,7 +38,8 @@ public class SecurityConfig{
     "/swagger-ui.html",
     "/v2/api-docs",
     "/webjars/**",
-    "/swagger-ui/**"
+    "/swagger-ui/**",
+      "/api/product/**"
   };
 
 
@@ -45,6 +47,7 @@ public class SecurityConfig{
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.csrf(AbstractHttpConfigurer::disable);
+        http.cors(AbstractHttpConfigurer::disable);
         http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.authorizeHttpRequests(auth -> auth
@@ -60,30 +63,30 @@ public class SecurityConfig{
         return http.build();
     }
 
-  @Bean
-	public WebMvcConfigurer corsConfigurer() {
-		return new WebMvcConfigurer() {
-			@Override
-			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**")
-        .allowedOrigins("*")
-        .allowedMethods("GET", "POST", "OPTIONS", "PUT")
-        .allowedHeaders("Content-Type", "X-Requested-With", "accept", "Origin", "Access-Control-Request-Method",
-                "Access-Control-Request-Headers")
-        .exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials")
-        .allowCredentials(true).maxAge(3600);
-			}
-		};
-	}
+//  @Bean
+//	public WebMvcConfigurer corsConfigurer() {
+//		return new WebMvcConfigurer() {
+//			@Override
+//			public void addCorsMappings(CorsRegistry registry) {
+//				registry.addMapping("/**")
+//        .allowedOrigins("*")
+//        .allowedMethods("GET", "POST", "OPTIONS", "PUT")
+//        .allowedHeaders("Content-Type", "X-Requested-With", "accept", "Origin", "Access-Control-Request-Method",
+//                "Access-Control-Request-Headers")
+//        .exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials")
+//        .allowCredentials(true).maxAge(3600);
+//			}
+//		};
+//	}
 
-  // @Bean
-  // public CorsConfigurationSource corsConfigurationSource() {
-  //   CorsConfiguration configuration = new CorsConfiguration();
-  //   configuration.setAllowedOrigins(Arrays.asList("*"));
-  //   configuration.setAllowedMethods(Arrays.asList("*"));
-  //   configuration.setAllowedHeaders(Arrays.asList("*"));
-  //   UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-  //   source.registerCorsConfiguration("/**", configuration);
-  //   return source;
-  // }
+//   @Bean
+//   public CorsConfigurationSource corsConfigurationSource() {
+//     CorsConfiguration configuration = new CorsConfiguration();
+//     configuration.setAllowedOrigins(List.of("*"));
+//     configuration.setAllowedMethods(List.of("*"));
+//     configuration.setAllowedHeaders(List.of("*"));
+//     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//     source.registerCorsConfiguration("/**", configuration);
+//     return source;
+//   }
 }
