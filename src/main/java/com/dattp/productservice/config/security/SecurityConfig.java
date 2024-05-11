@@ -28,18 +28,18 @@ public class SecurityConfig{
 
   public static final String[] pathPublic= {
     "/isRunning",
-    "/api/product/user/table",
-    "/api/product/user/table/*",
-    "/api/product/user/table/*/comment",
-    "/api/product/user/dish",
-    "/api/product/user/dish/*",
-    "/api/product/user/dish/*/comment",
+//    "/api/product/user/table",
+//    "/api/product/user/table/*",
+//    "/api/product/user/table/*/comment",
+//    "/api/product/user/dish",
+//    "/api/product/user/dish/*",
+//    "/api/product/user/dish/*/comment",
     "/swagger-resources/**",
     "/swagger-ui.html",
     "/v2/api-docs",
     "/webjars/**",
     "/swagger-ui/**",
-//    "/api/product/**"
+    "/api/product/user/**"
   };
 
 
