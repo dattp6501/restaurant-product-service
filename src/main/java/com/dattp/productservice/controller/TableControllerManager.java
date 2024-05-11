@@ -49,7 +49,7 @@ public class TableControllerManager extends Controller{
     * */
     @GetMapping(value = "/{table_id}", produces = {MediaType.APPLICATION_JSON_VALUE})
     @AddAuthorizedDocAPI
-    @RolesAllowed({"ROLE_PRODUCT_UPDATE","ROLE_PRODUCT_DELETE"})
+    @RolesAllowed({"ROLE_ADMIN","ROLE_PRODUCT_UPDATE","ROLE_PRODUCT_DELETE"})
     public ResponseEntity<ResponseDTO> getTableDetail(@PathVariable("table_id") Long id){
         return ResponseEntity.ok().body(
           new ResponseDTO(
