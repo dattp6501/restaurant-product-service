@@ -47,7 +47,7 @@ public class SecurityConfig{
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http.csrf(AbstractHttpConfigurer::disable)
-            .cors(AbstractHttpConfigurer::disable)
+//            .cors(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .antMatchers(pathPublic).permitAll()
                 .anyRequest().authenticated()
@@ -80,14 +80,16 @@ public class SecurityConfig{
 //		};
 //	}
 
-//   @Bean
-//   public CorsConfigurationSource corsConfigurationSource() {
-//     CorsConfiguration configuration = new CorsConfiguration();
-//     configuration.setAllowedOrigins(List.of("*"));
-//     configuration.setAllowedMethods(List.of("*"));
-//     configuration.setAllowedHeaders(List.of("*"));
-//     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//     source.registerCorsConfiguration("/**", configuration);
-//     return source;
-//   }
+   @Bean
+   public CorsConfigurationSource corsConfigurationSource() {
+       CorsConfiguration configuration = new CorsConfiguration();
+       configuration.addAllowedOrigin("*"); // Cho phép tất cả các origin
+       configuration.addAllowedMethod("*"); // Cho phép tất cả các phương thức (GET, POST, PUT, DELETE, v.v.)
+       configuration.addAllowedHeader("*"); // Cho phép tất cả các header
+       configuration.setAllowCredentials(true); // Cho phép gửi cookie
+
+       UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+       source.registerCorsConfiguration("/**", configuration);
+       return source;
+   }
 }
