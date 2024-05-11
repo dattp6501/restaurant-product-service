@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequestMapping("/api/product/user/cart")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
+@CrossOrigin(origins = "*")
 public class CartController extends Controller{
   @PostMapping(value = "/dish", produces = {MediaType.APPLICATION_JSON_VALUE})
   @AddAuthorizedDocAPI
