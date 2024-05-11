@@ -2,7 +2,12 @@ package com.dattp.productservice.service;
 
 import com.dattp.productservice.dto.dish.DishInCartRequestDTO;
 import com.dattp.productservice.entity.Dish;
+import com.dattp.productservice.pojo.DishOverview;
+
 import lombok.extern.log4j.Log4j2;
+
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,5 +17,9 @@ public class CartService extends com.dattp.productservice.service.Service {
     Dish dish = dishStorage.getDetailFromCacheAndDb(dto.getDishId());
     //add to cart
     cartStorage.addDishToCart(dish);
+  }
+
+  public List<DishOverview> getListDish(){
+    return cartStorage.getListDishInCart(jwtService.getUserId());
   }
 }

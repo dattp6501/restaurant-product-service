@@ -46,7 +46,7 @@ public class DishStorage extends Storage{
         DishOverview dishOverview = new DishOverview(d);
         dishMap.put(d.getId().toString(), dishOverview);
       }
-      redisService.putHashAll(RedisKeyConfig.genKeyAllDishOverview(), dishMap, RedisService.CacheTime.NO_LIMIT);
+      redisService.putHashAll(RedisKeyConfig.genKeyAllDishOverview(), dishMap, RedisService.CacheTime.ONE_DAY);
     }catch (Exception e){
       log.error("======> addToCache::exception::{}",e.getMessage());
     }

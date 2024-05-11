@@ -167,4 +167,16 @@ public class RedisService {
     }
   }
 
+  public <T> List<T> multiGetEntity(List<Object> keys, Class<T> tClass){
+    try {
+      List<T> list = redisTemplate.opsForValue().multiGet(keys).stream()
+      .map(e-> JSONUtils.toEntity(e.toString(), tClass))
+      .toList();
+      return list;
+    }catch (Exception e){
+      log.error("======> addToCache::exception::{}",e.getMessage());
+      return null;
+    }
+  }
+
 }

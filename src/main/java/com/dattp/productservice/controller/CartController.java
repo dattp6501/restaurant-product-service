@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
+import org.springframework.web.bind.annotation.GetMapping;
+
 
 @RestController
 @RequestMapping("/api/product/user/cart")
@@ -29,6 +31,19 @@ public class CartController extends Controller{
         HttpStatus.OK.value(),
         "Thành công",
         null
+      )
+    );
+  }
+
+  
+  @GetMapping(value = "/dish", produces = {MediaType.APPLICATION_JSON_VALUE})
+  @AddAuthorizedDocAPI
+  public ResponseEntity<ResponseDTO> getListDishInCart(){
+    return ResponseEntity.ok(
+      new ResponseDTO(
+        HttpStatus.OK.value(),
+        "Thành công",
+        cartService.getListDish()
       )
     );
   }
