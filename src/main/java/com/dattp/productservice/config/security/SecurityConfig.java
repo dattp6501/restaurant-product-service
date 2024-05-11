@@ -39,14 +39,16 @@ public class SecurityConfig{
     "/v2/api-docs",
     "/webjars/**",
     "/swagger-ui/**",
-//    "/api/product/user/**"
+    "/api/product/user/**",
+    "/api/product/manage/**"
   };
 
 
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-        http.csrf(AbstractHttpConfigurer::disable)
+        http
+//            .csrf(AbstractHttpConfigurer::disable)
 //            .cors(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .antMatchers(pathPublic).permitAll()
@@ -80,16 +82,16 @@ public class SecurityConfig{
 //		};
 //	}
 
-   @Bean
-   public CorsConfigurationSource corsConfigurationSource() {
-       CorsConfiguration configuration = new CorsConfiguration();
-       configuration.addAllowedOrigin("*"); // Cho phép tất cả các origin
-       configuration.addAllowedMethod("*"); // Cho phép tất cả các phương thức (GET, POST, PUT, DELETE, v.v.)
-       configuration.addAllowedHeader("*"); // Cho phép tất cả các header
-       configuration.setAllowCredentials(true); // Cho phép gửi cookie
-
-       UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-       source.registerCorsConfiguration("/**", configuration);
-       return source;
-   }
+//   @Bean
+//   public CorsConfigurationSource corsConfigurationSource() {
+//       CorsConfiguration configuration = new CorsConfiguration();
+//       configuration.addAllowedOrigin("*"); // Cho phép tất cả các origin
+//       configuration.addAllowedMethod("*"); // Cho phép tất cả các phương thức (GET, POST, PUT, DELETE, v.v.)
+//       configuration.addAllowedHeader("*"); // Cho phép tất cả các header
+//       configuration.setAllowCredentials(true); // Cho phép gửi cookie
+//
+//       UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//       source.registerCorsConfiguration("/**", configuration);
+//       return source;
+//   }
 }
