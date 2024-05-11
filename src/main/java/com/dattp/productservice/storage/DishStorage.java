@@ -113,7 +113,7 @@ public class DishStorage extends Storage{
 
   public void addToCache(Dish dish){
     try{
-      redisService.setEntity(RedisKeyConfig.genKeyDish(dish.getId()), dish, null);
+      redisService.setEntity(RedisKeyConfig.genKeyDish(dish.getId()), dish, RedisService.CacheTime.ONE_DAY);
     }catch (Exception e){
       log.error("======> addToCache::exception::{}",e.getMessage());
     }

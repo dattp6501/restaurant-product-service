@@ -53,15 +53,15 @@ public class SecurityConfig{
             .authorizeHttpRequests(auth -> auth
                 .antMatchers(pathPublic).permitAll()
                 .anyRequest().authenticated()
-//                .and()
-//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .and()
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             )
             .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//            .headers(headers -> headers.frameOptions().disable())
-//            .csrf(csrf -> csrf
-//                .ignoringAntMatchers("/**")
-//            )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .headers(headers -> headers.frameOptions().disable())
+            .csrf(csrf -> csrf
+                .ignoringAntMatchers("/**")
+            )
+//            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         ;
         return http.build();
     }
