@@ -28,38 +28,38 @@ public class SecurityConfig{
 
   public static final String[] pathPublic= {
     "/isRunning",
-//    "/api/product/user/table",
-//    "/api/product/user/table/*",
-//    "/api/product/user/table/*/comment",
-//    "/api/product/user/dish",
-//    "/api/product/user/dish/*",
-//    "/api/product/user/dish/*/comment",
+    "/api/product/user/table",
+    "/api/product/user/table/*",
+    "/api/product/user/table/*/comment",
+    "/api/product/user/dish",
+    "/api/product/user/dish/*",
+    "/api/product/user/dish/*/comment",
     "/swagger-resources/**",
     "/swagger-ui.html",
     "/v2/api-docs",
     "/webjars/**",
     "/swagger-ui/**",
-    "/api/product/user/**"
+//    "/api/product/user/**"
   };
 
 
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
-        http.csrf(AbstractHttpConfigurer::disable);
-        http.cors(AbstractHttpConfigurer::disable);
-        http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        http.authorizeHttpRequests(auth -> auth
+        http.csrf(AbstractHttpConfigurer::disable)
+            .cors(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth
                 .antMatchers(pathPublic).permitAll()
                 .anyRequest().authenticated()
-                .and()
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+//                .and()
+//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             )
+            .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 //            .headers(headers -> headers.frameOptions().disable())
 //            .csrf(csrf -> csrf
 //                .ignoringAntMatchers("/**")
 //            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         ;
         return http.build();
     }
