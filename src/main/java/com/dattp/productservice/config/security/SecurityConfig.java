@@ -39,7 +39,6 @@ public class SecurityConfig{
     "/v2/api-docs",
     "/webjars/**",
     "/swagger-ui/**",
-//      "/api/product/**"
   };
 
 
@@ -56,10 +55,11 @@ public class SecurityConfig{
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             )
-            .headers(headers -> headers.frameOptions().disable())
-            .csrf(csrf -> csrf
-                .ignoringAntMatchers("/**")
-            );
+//            .headers(headers -> headers.frameOptions().disable())
+//            .csrf(csrf -> csrf
+//                .ignoringAntMatchers("/**")
+//            )
+        ;
         return http.build();
     }
 

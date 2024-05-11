@@ -37,6 +37,7 @@ public class CartController extends Controller{
 
   
   @GetMapping(value = "/dish", produces = {MediaType.APPLICATION_JSON_VALUE})
+  @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
   @AddAuthorizedDocAPI
   public ResponseEntity<ResponseDTO> getListDishInCart(){
     return ResponseEntity.ok(
