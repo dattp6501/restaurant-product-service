@@ -55,7 +55,13 @@ public class TableStorage extends Storage{
   }
 
   public TableE getDetailFromCacheAndDb(Long tableId){
-    return new TableE();
+    String key = RedisKeyConfig.genKeyTable(tableId);
+    TableE table = redisService.getEntity(key, TableE.class);
+    if(Objects.isNull(table)){
+      table = this.getDetailFromDB(tableId);
+      redisService.setEntity(key, table, RedisService.CacheTime.ONE_DAY);
+    }
+    return table;
   }
   /*
   * admin
