@@ -48,10 +48,10 @@ public class TableStorage extends Storage{
     String key = RedisKeyConfig.genKeyPageTableOverview(pageable.getPageNumber());
     Page<TableE> tableS = tableRepository.findAllByStateIn(List.of(TableState.ACTIVE), pageable);
     Map<Object, Object> tableMap = tableS.stream()
-        .collect(Collectors.toMap(table->table.getId().toString(), Function.identity()));
+        .collect(Collectors.toMap(table->table.getId().toString(), TableOverview::new));
     redisService.putHashAll(key, tableMap, RedisService.CacheTime.ONE_DAY);
     return tableMap.values().stream()
-      .map(e->new TableOverview((TableE)e)).collect(Collectors.toList());
+      .map(e->(TableOverview)e).collect(Collectors.toList());
   }
 
   public TableE getDetailFromCacheAndDb(Long tableId){

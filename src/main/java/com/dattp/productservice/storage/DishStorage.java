@@ -39,9 +39,9 @@ public class DishStorage extends Storage{
     String key = RedisKeyConfig.genKeyPageDishOverview(pageable.getPageNumber());
     Page<Dish> dishs = dishRepository.findDishesByStateIn(List.of(DishState.ACTIVE), pageable);
     Map<Object, Object> dishMap = dishs.stream()
-        .collect(Collectors.toMap((dish -> dish.getId().toString()), Function.identity()));
+        .collect(Collectors.toMap((dish -> dish.getId().toString()), DishOverview::new));
     redisService.putHashAll(key, dishMap, RedisService.CacheTime.ONE_DAY);
-    return dishMap.values().stream().map(e->new DishOverview((Dish)e)).collect(Collectors.toList());
+    return dishMap.values().stream().map(e->(DishOverview)e).collect(Collectors.toList());
   }
   /*
   * admin
