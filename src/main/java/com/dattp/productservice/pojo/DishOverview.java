@@ -15,6 +15,7 @@ public class DishOverview implements Serializable {
   private String name;
   private Float price;
   private String image;
+  private String description;
 
   public DishOverview(){
   }

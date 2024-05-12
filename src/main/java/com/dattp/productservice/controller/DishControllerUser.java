@@ -25,7 +25,7 @@ import com.dattp.productservice.entity.CommentDish;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class DishControllerUser extends Controller{
     @GetMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> getDishs(Pageable pageable){//page=?&size=?
+    public ResponseEntity<ResponseDTO> getDishs(Pageable pageable){//page=?&size=?
         return ResponseEntity.ok(
             new ResponseDTO(
                 HttpStatus.OK.value(),
@@ -36,7 +36,7 @@ public class DishControllerUser extends Controller{
     }
 
     @GetMapping(value = "/hot", produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> getDishsHot(Pageable pageable){//page=?&size=?
+    public ResponseEntity<ResponseDTO> getDishsHot(Pageable pageable){//page=?&size=?
         return ResponseEntity.ok(
             new ResponseDTO(
                 HttpStatus.OK.value(),

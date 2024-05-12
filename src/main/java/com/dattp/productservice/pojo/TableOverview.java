@@ -15,7 +15,9 @@ public class TableOverview implements Serializable {
   private Long id;
   private String name;
   private String image;
-  private List<Object> freeTime;
+  private List<PeriodTime> freeTime;
+  private Float price;
+  private String description;
 
   public TableOverview(){}
 

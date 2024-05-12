@@ -14,6 +14,7 @@ import com.dattp.productservice.dto.dish.DishResponseDTO;
 import com.dattp.productservice.dto.dish.DishUpdateRequestDTO;
 import com.dattp.productservice.entity.User;
 import com.dattp.productservice.entity.state.DishState;
+import com.dattp.productservice.pojo.DishOverview;
 import lombok.extern.log4j.Log4j2;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -35,18 +36,11 @@ public class DishService extends com.dattp.productservice.service.Service {
     /*
      * get list dish
      * */
-    public List<DishResponseDTO> getDishsOverview(Pageable pageable){
-        log.debug("====================================> TEST LOG ========================================");
-        return dishStorage.findListFromCacheAndDB(pageable)
-          .stream().map(DishResponseDTO::new)
-          .collect(Collectors.toList());
+    public List<DishOverview> getDishsOverview(Pageable pageable){
+        return dishStorage.findListFromCacheAndDB(pageable);
     }
 
-    public List<DishResponseDTO> getDishsHot(Pageable pageable){
-        log.debug("====================================> TEST LOG ========================================");
-        List<DishResponseDTO> dishs = dishStorage.findListFromCacheAndDB(pageable)
-            .stream().map(DishResponseDTO::new)
-            .collect(Collectors.toList());
+    public List<DishOverview> getDishsHot(Pageable pageable){List<DishOverview> dishs = dishStorage.findListFromCacheAndDB(pageable);
         if(dishs.size()>10) return dishs.subList(0, 10);
         return dishs;
     }
@@ -103,9 +97,6 @@ public class DishService extends com.dattp.productservice.service.Service {
     public DishResponseDTO create(DishCreateRequestDTO dishReq){
         //save db
         Dish dish = dishStorage.saveToDB(new Dish(dishReq));
-        //cache
-        dishStorage.addToCache(dish);
-        dishStorage.addOverviewDishToCache(dish);
         //response
         DishResponseDTO resp = new DishResponseDTO(dish);
         kafkaService.send(KafkaTopicConfig.NEW_DISH_TOPIC, resp);
@@ -117,9 +108,6 @@ public class DishService extends com.dattp.productservice.service.Service {
         dish.copyProperties(dto);
         //save db
         dish = dishStorage.saveToDB(dish);
-        //cache
-        dishStorage.addToCache(dish);
-        dishStorage.updateOverviewDishFromCache(dish);
         //resp
         DishResponseDTO resp = new DishResponseDTO(dish);
         kafkaService.send(KafkaTopicConfig.UPDATE_DISH_TOPIC, resp);
@@ -131,16 +119,7 @@ public class DishService extends com.dattp.productservice.service.Service {
     public Boolean createByExcel(InputStream inputStream) throws IOException {
         List<Dish> listDish = readXlsxDish(inputStream);
         listDish = dishStorage.saveAll(listDish);
-        // cache
-        //list dish overview
-        if(!redisService.hasKey(RedisKeyConfig.genKeyAllDishOverview()))
-            dishStorage.initDishOverviewCache();
-
         listDish.forEach(dish -> {
-            //list dish overview
-            dishStorage.addOverviewDishToCache(dish);
-            //detail dish
-            dishStorage.addToCache(dish);
             //send kafka
             kafkaService.send(KafkaTopicConfig.NEW_TABLE_TOPIC, new DishResponseDTO(dish));
         });

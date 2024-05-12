@@ -27,7 +27,7 @@ public class TableControllerUser extends Controller{
     @GetMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE})
 //    @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
     public ResponseEntity<ResponseDTO> getAllTable(Pageable pageable){
-        return ResponseEntity.ok().body(
+        return ResponseEntity.ok(
             new ResponseDTO(
                 HttpStatus.OK.value(), 
                 "Thành công", 
@@ -38,7 +38,7 @@ public class TableControllerUser extends Controller{
     @GetMapping(value = "/{table_id}", produces = {MediaType.APPLICATION_JSON_VALUE})
 //    @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
     public ResponseEntity<ResponseDTO> getTableDetail(@PathVariable("table_id") Long id){
-        return ResponseEntity.ok().body(
+        return ResponseEntity.ok(
           new ResponseDTO(
             HttpStatus.OK.value(),
             "Thành công",

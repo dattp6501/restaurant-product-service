@@ -5,6 +5,7 @@ import com.dattp.productservice.entity.CommentTable;
 import com.dattp.productservice.entity.TableE;
 import com.dattp.productservice.entity.state.TableState;
 import com.dattp.productservice.exception.BadRequestException;
+import com.dattp.productservice.pojo.PeriodTime;
 import com.dattp.productservice.pojo.TableOverview;
 import com.dattp.productservice.service.RedisService;
 import lombok.extern.log4j.Log4j2;
@@ -15,10 +16,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
@@ -29,27 +28,34 @@ public class TableStorage extends Storage{
   * user
   * */
   public List<TableOverview> findListFromCacheAndDB(Pageable pageable){
-    String key = RedisKeyConfig.genKeyAllTableOverview();
+    String key = RedisKeyConfig.genKeyPageTableOverview(pageable.getPageNumber());
     List<TableOverview> list = redisService.getHashAll(key, TableOverview.class);
-
-    if(list==null) list = initTableOverview();
-
+    if(Objects.isNull(list)){
+      list = getTableOverview(pageable);
+    }
+    //get free time
+    if(Objects.nonNull(list)){
+      list.forEach(t->{
+        String keyFree = RedisKeyConfig.genKeyTableFreeTime(t.getId());
+        List<PeriodTime> tableFreeTime = redisService.getList(keyFree, PeriodTime.class);
+        if(Objects.nonNull(tableFreeTime)) t.setFreeTime(tableFreeTime);
+      });
+    }
     return list;
   }
 
-  public List<TableOverview> initTableOverview(){
-    Map<Object, Object> tableMap = new HashMap<>();
-    try{
-      List<TableE> tableS = tableRepository.findAllByStateIn(List.of(TableState.ACTIVE));
-      for(TableE t : tableS){
-        tableMap.put(t.getId().toString(), new TableOverview(t));
-      }
-      redisService.putHashAll(RedisKeyConfig.genKeyAllTableOverview(), tableMap, RedisService.CacheTime.NO_LIMIT);
-    }catch (Exception e){
-      log.error("======> addToCache::exception::{}",e.getMessage());
-    }
+  public List<TableOverview> getTableOverview(Pageable pageable){
+    String key = RedisKeyConfig.genKeyPageTableOverview(pageable.getPageNumber());
+    Page<TableE> tableS = tableRepository.findAllByStateIn(List.of(TableState.ACTIVE), pageable);
+    Map<Object, Object> tableMap = tableS.stream()
+        .collect(Collectors.toMap(table->table.getId().toString(), Function.identity()));
+    redisService.putHashAll(key, tableMap, RedisService.CacheTime.ONE_DAY);
     return tableMap.values().stream()
-      .map(e->(TableOverview)e).collect(Collectors.toList());
+      .map(e->new TableOverview((TableE)e)).collect(Collectors.toList());
+  }
+
+  public TableE getDetailFromCacheAndDb(Long tableId){
+    return new TableE();
   }
   /*
   * admin
@@ -68,9 +74,7 @@ public class TableStorage extends Storage{
     String key = RedisKeyConfig.genKeyTable(id);
     TableE table = redisService.getEntity(key, TableE.class);
     if(table!=null) return table;
-
     table = tableRepository.findById(id).orElseThrow(()-> new BadRequestException(String.format("table(id=%d) not found", id)));
-    addToCache(table);
     return table;
   }
   /*
@@ -83,47 +87,17 @@ public class TableStorage extends Storage{
   //=================================== SAVE TABLE ========================
   @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
   public List<TableE> saveAllToDB(List<TableE> tables){
-    return tableRepository.saveAll(tables);
+    List<TableE> tablesNew = tableRepository.saveAll(tables);
+    redisService.delete(genCacheKeys(null));
+    return tablesNew;
   }
 
   @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
   public TableE saveToDB(TableE table){
-    return tableRepository.save(table);
+    TableE tableNew = tableRepository.save(table);
+    redisService.delete(genCacheKeys(tableNew));
+    return tableNew;
   }
-
-  public void addToCache(TableE table){
-    try {
-      redisService.setEntity(RedisKeyConfig.genKeyTable(table.getId()), table, null);
-    }catch (Exception e){
-      log.error("======> addToCache::exception::{}",e.getMessage());
-    }
-  }
-
-  public void addTableOverview(TableE table){
-    try {
-      if(redisService.hasKey(RedisKeyConfig.genKeyTable(table.getId()))){
-        redisService.addElemntHash(RedisKeyConfig.genKeyAllTableOverview(), table.getId().toString(), new TableOverview(table), RedisService.CacheTime.NO_LIMIT);
-        return;
-      }
-      initTableOverview();
-    }catch (Exception e){
-      log.error("======> addToCache::exception::{}",e.getMessage());
-    }
-  }
-
-  public void updateTableOverview(TableE table){
-    try {
-      if(redisService.hasKey(RedisKeyConfig.genKeyTable(table.getId()))){
-        redisService.updateHash(RedisKeyConfig.genKeyAllTableOverview(), table.getId().toString(), new TableOverview(table), RedisService.CacheTime.NO_LIMIT);
-        return;
-      }
-      initTableOverview();
-    }catch (Exception e){
-      log.error("======> addToCache::exception::{}",e.getMessage());
-    }
-  }
-
-
 
   //=======================================    COMMENT  =============================================
   @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
@@ -164,5 +138,13 @@ public class TableStorage extends Storage{
       );
     }
     return comments;
+  }
+
+  public List<String> genCacheKeys(TableE table){
+    List<String> keys = new ArrayList<>();
+    for(int i=0; i<10; i++)
+      keys.add(RedisKeyConfig.genKeyPageTableOverview(i));
+    if(Objects.nonNull(table)) keys.add(RedisKeyConfig.genKeyTable(table.getId()));
+    return keys;
   }
 }

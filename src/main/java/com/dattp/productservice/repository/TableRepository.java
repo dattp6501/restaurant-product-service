@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 import com.dattp.productservice.entity.TableE;
 
 public interface TableRepository extends JpaRepository<TableE,Long>{
-    List<TableE> findAllByStateIn(List<TableState> states);
+    Page<TableE> findAllByStateIn(List<TableState> states, Pageable pageable);
     List<TableE> findAllByIdInAndStateIn(List<Long> ids, List<TableState> states);
 
     @Query(

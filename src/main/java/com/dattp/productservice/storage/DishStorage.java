@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
@@ -25,32 +26,22 @@ public class DishStorage extends Storage{
   /*
    * user
    * */
-  public List<Dish> findListFromCacheAndDB(Pageable pageable){
-    String key = RedisKeyConfig.genKeyAllDishOverview();
+  public List<DishOverview> findListFromCacheAndDB(Pageable pageable){
+    String key = RedisKeyConfig.genKeyPageDishOverview(pageable.getPageNumber());
     List<DishOverview> dishs = redisService.getHashAll(key, DishOverview.class);
     log.debug("======>  findListFromCacheAndDB::dish::cache::{}", Objects.nonNull(dishs)?dishs.size():dishs);
-    if(dishs == null){
-      dishs = initDishOverviewCache();
+    if(Objects.isNull(dishs)){
+      dishs = getDishOverviewCache(pageable);
     }
-    //
-    return dishs.stream()
-      .map(DishOverview::toDish)
-      .collect(Collectors.toList());
+    return dishs;
   }
-  public List<DishOverview> initDishOverviewCache(){
-    Map<Object, Object> dishMap = new HashMap<>();
-    try{
-      List<Dish> dishs = dishRepository.findAllByStateIn(List.of(DishState.ACTIVE));
-      log.debug("======>  initDishOverviewCache::dish::{}", Objects.nonNull(dishs)?dishs.size():dishs);
-      for(Dish d : dishs){
-        DishOverview dishOverview = new DishOverview(d);
-        dishMap.put(d.getId().toString(), dishOverview);
-      }
-      redisService.putHashAll(RedisKeyConfig.genKeyAllDishOverview(), dishMap, RedisService.CacheTime.ONE_DAY);
-    }catch (Exception e){
-      log.error("======> addToCache::exception::{}",e.getMessage());
-    }
-    return dishMap.values().stream().map(e->(DishOverview)e).collect(Collectors.toList());
+  public List<DishOverview> getDishOverviewCache(Pageable pageable){
+    String key = RedisKeyConfig.genKeyPageDishOverview(pageable.getPageNumber());
+    Page<Dish> dishs = dishRepository.findDishesByStateIn(List.of(DishState.ACTIVE), pageable);
+    Map<Object, Object> dishMap = dishs.stream()
+        .collect(Collectors.toMap((dish -> dish.getId().toString()), Function.identity()));
+    redisService.putHashAll(key, dishMap, RedisService.CacheTime.ONE_DAY);
+    return dishMap.values().stream().map(e->new DishOverview((Dish)e)).collect(Collectors.toList());
   }
   /*
   * admin
@@ -69,8 +60,6 @@ public class DishStorage extends Storage{
     if(dish != null) return dish;
 
     dish = dishRepository.findById(id).orElseThrow(() -> new BadRequestException(String.format("dish(id=%d) not found", id)));
-    addToCache(dish);
-
     return dish;
   }
 
@@ -101,50 +90,18 @@ public class DishStorage extends Storage{
   * */
   @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
   public List<Dish> saveAll(List<Dish> dishs){
-    return dishRepository.saveAll(dishs);
+    List<Dish> dishsNew = dishRepository.saveAll(dishs);
+    redisService.delete(genCacheKeys(null));
+    return dishs;
   }
   /*
    * save dish
    * */
   @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
   public Dish saveToDB(Dish dish){
-    return dishRepository.save(dish);
-  }
-
-  public void addToCache(Dish dish){
-    try{
-      redisService.setEntity(RedisKeyConfig.genKeyDish(dish.getId()), dish, RedisService.CacheTime.ONE_DAY);
-    }catch (Exception e){
-      log.error("======> addToCache::exception::{}",e.getMessage());
-    }
-  }
-
-  public void addOverviewDishToCache(Dish dish){
-    try {
-      //neu key luu ton tai => them
-      if(redisService.hasKey(RedisKeyConfig.genKeyAllDishOverview())){
-        redisService.addElemntHash(RedisKeyConfig.genKeyAllDishOverview(), dish.getId().toString(), new DishOverview(dish), RedisService.CacheTime.NO_LIMIT);
-        return;
-      }
-      //khoi tao lai danh sach
-      initDishOverviewCache();
-    }catch (Exception e){
-      log.error("======> addToCache::exception::{}",e.getMessage());
-    }
-  }
-
-  public void updateOverviewDishFromCache(Dish dish){
-    try {
-      //neu key luu ton tai => cap nhat lai gia tri
-      if(redisService.hasKey(RedisKeyConfig.genKeyAllDishOverview())){
-        redisService.updateHash(RedisKeyConfig.genKeyAllDishOverview(), dish.getId().toString(), new DishOverview(dish), RedisService.CacheTime.NO_LIMIT);
-        return;
-      }
-      //khoi tao lai danh sach
-      initDishOverviewCache();
-    }catch (Exception e){
-      log.error("======> addToCache::exception::{}",e.getMessage());
-    }
+    Dish dishNew = dishRepository.save(dish);
+    redisService.delete(genCacheKeys(dish));
+    return dishNew;
   }
 
   //==============================================   COMMENT ========================================
@@ -172,5 +129,13 @@ public class DishStorage extends Storage{
     }catch (Exception e){
       log.error("======> addToCache::exception::{}",e.getMessage());
     }
+  }
+
+  public List<String> genCacheKeys(Dish dish){
+    List<String> keys = new ArrayList<>();
+    for(int i=0; i<10; i++)
+      keys.add(RedisKeyConfig.genKeyPageDishOverview(i));
+    if(Objects.nonNull(dish)) keys.add(RedisKeyConfig.genKeyDish(dish.getId()));
+    return keys;
   }
 }

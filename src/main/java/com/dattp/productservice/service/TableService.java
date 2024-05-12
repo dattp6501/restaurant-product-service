@@ -2,8 +2,6 @@ package com.dattp.productservice.service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,18 +19,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import com.dattp.productservice.dto.ResponseDTO;
-import com.dattp.productservice.dto.resttemplate.PeriodTimeResponseDTO;
-import com.dattp.productservice.dto.resttemplate.PeriodsTimeBookedTableDTO;
-import com.dattp.productservice.dto.resttemplate.ResponseListTableFreeTimeDTO;
 import com.dattp.productservice.entity.CommentTable;
 import com.dattp.productservice.entity.TableE;
 import com.dattp.productservice.exception.BadRequestException;
@@ -53,59 +41,6 @@ public class TableService extends com.dattp.productservice.service.Service {
 
     public TableResponseDTO getDetailFromCache(Long id){
         return new TableResponseDTO(tableStorage.getDetailFromCacheAndDB(id));
-    }
-    /*
-     *
-     * */
-    public List<PeriodsTimeBookedTableDTO> getFreeTimeOfTable(Date fromI, Date toI, Pageable pageable, String accessToken){
-        List<PeriodsTimeBookedTableDTO> list = new ArrayList<>();
-        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
-        String from = format.format(fromI);
-        String to = format.format(toI);
-        // lấy danh sách các bàn, trong đó có thời gian đặt của từng bàn
-        String url = "http://localhost:9003/api/booking/booked_table/get_all_period_rent_table?from={from}&to={to}";
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("access_token", accessToken);
-        HttpEntity<String> request = new HttpEntity<>(headers);
-        ResponseEntity<ResponseListTableFreeTimeDTO> response = restTemplate.exchange(
-          url,
-          HttpMethod.GET,
-          request,
-          ResponseListTableFreeTimeDTO.class,
-          from,to
-        );
-        List<Long> listNotIn = new ArrayList<>();
-        listNotIn.add((long)-1);
-        Objects.requireNonNull(response.getBody()).getData().forEach((ptbt)->{
-            listNotIn.add(ptbt.getId());
-        });
-        // lay danh sach cac ban trong
-        final String url1 = "http://localhost:9003/api/booking/booked_table/get_period_rent_table/{id}?from={from}&to={to}";
-        tableRepository.findAllNotIn(listNotIn,pageable).getContent().forEach((t)->{
-            PeriodsTimeBookedTableDTO periodsTimeBookedTableDTO = new PeriodsTimeBookedTableDTO();
-            periodsTimeBookedTableDTO.setTimes(new ArrayList<>());
-            BeanUtils.copyProperties(t, periodsTimeBookedTableDTO);
-            long id = t.getId();
-            ResponseEntity<ResponseDTO> resp1 = restTemplate.exchange(
-              url1,
-              HttpMethod.GET,
-              request,
-              ResponseDTO.class,
-              id,from,to
-            );
-            LinkedHashMap<String,List<Object>> map = (LinkedHashMap<String, List<Object>>) resp1.getBody().getData();
-            map.get("times").forEach((obj)->{
-                LinkedHashMap<String,String> time = (LinkedHashMap<String, String>) obj;
-                try {
-                    PeriodTimeResponseDTO timeResp = new PeriodTimeResponseDTO(format.parse(time.get("from")), format.parse(time.get("to")));
-                    periodsTimeBookedTableDTO.getTimes().add(timeResp);
-                } catch (ParseException e) {
-                    log.error("======> addToCache::exception::{}",e.getMessage());
-                }
-            });
-            list.add(periodsTimeBookedTableDTO);
-        });
-        return list;
     }
     /*
      * add comment
@@ -151,9 +86,6 @@ public class TableService extends com.dattp.productservice.service.Service {
     public TableResponseDTO create(TableCreateRequestDTO tableReq) {
         //save to db
         TableE table = tableStorage.saveToDB(new TableE(tableReq));
-        //cache
-        tableStorage.addToCache(table);
-        tableStorage.addTableOverview(table);
         //response
         TableResponseDTO resp = new TableResponseDTO(table);
         kafkaService.send(KafkaTopicConfig.NEW_TABLE_TOPIC, resp);
@@ -163,13 +95,10 @@ public class TableService extends com.dattp.productservice.service.Service {
      * update table
      * */
     public TableResponseDTO update(TableUpdateRequestDTO dto){
-        TableE table = tableRepository.findById(dto.getId()).orElseThrow(()-> new BadRequestException(String.format("table(id=%d) not found", dto.getId())));
+        TableE table = tableStorage.getDetailFromDB(dto.getId());
         table.copyProperties(dto);
         //save to db
         table = tableStorage.saveToDB(table);
-        //cache
-        tableStorage.addToCache(table);
-        tableStorage.updateTableOverview(table);
         //response
         TableResponseDTO resp = new TableResponseDTO(table);
         kafkaService.send(KafkaTopicConfig.UPDATE_TABLE_TOPIC, resp);
@@ -181,15 +110,8 @@ public class TableService extends com.dattp.productservice.service.Service {
     public Boolean createByExcel(InputStream inputStream) throws IOException {
         List<TableE> tables = readXlsxTable(inputStream);
         tables = tableStorage.saveAllToDB(tables);
-        //cache
-        //overview
-        if(!redisService.hasKey(RedisKeyConfig.genKeyAllTableOverview()))
-            tableStorage.initTableOverview();
+        //notification
         tables.forEach(t->{
-            //detail
-            tableStorage.addToCache(t);
-            //over view
-            tableStorage.addTableOverview(t);
             //send kafka
             kafkaService.send(KafkaTopicConfig.NEW_TABLE_TOPIC, new TableResponseDTO(t));
           }

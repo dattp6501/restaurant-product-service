@@ -3,6 +3,7 @@ package com.dattp.productservice.controller;
 import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
 import com.dattp.productservice.dto.ResponseDTO;
 import com.dattp.productservice.dto.dish.DishInCartRequestDTO;
+import com.dattp.productservice.dto.table.TableInCartRequestDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -46,6 +47,34 @@ public class CartController extends Controller{
         "Thành công",
         cartService.getListDish()
       )
+    );
+  }
+
+  @PostMapping(value = "/table", produces = {MediaType.APPLICATION_JSON_VALUE})
+  @AddAuthorizedDocAPI
+  @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
+  public ResponseEntity<ResponseDTO> addTableToCart(@RequestBody @Valid TableInCartRequestDTO dto) throws Exception{
+    cartService.addTableToCart(dto);
+    return ResponseEntity.ok(
+        new ResponseDTO(
+            HttpStatus.OK.value(),
+            "Thành công",
+            null
+        )
+    );
+  }
+
+
+  @GetMapping(value = "/table", produces = {MediaType.APPLICATION_JSON_VALUE})
+  @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
+  @AddAuthorizedDocAPI
+  public ResponseEntity<ResponseDTO> getListTableInCart(){
+    return ResponseEntity.ok(
+        new ResponseDTO(
+            HttpStatus.OK.value(),
+            "Thành công",
+            cartService.getListTable()
+        )
     );
   }
 }

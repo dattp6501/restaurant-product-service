@@ -2,6 +2,7 @@ package com.dattp.productservice.service;
 
 import com.dattp.productservice.utils.JSONUtils;
 import lombok.extern.log4j.Log4j2;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -40,6 +42,14 @@ public class RedisService {
   public void delete(String key){
     try {
       redisTemplate.delete(key);
+    }catch (Exception e){
+      log.error("======> addToCache::exception::{}",e.getMessage());
+    }
+  }
+
+  public void delete(List<String> keys){
+    try {
+      redisTemplate.delete(keys);
     }catch (Exception e){
       log.error("======> addToCache::exception::{}",e.getMessage());
     }
@@ -136,9 +146,14 @@ public class RedisService {
     }
   }
 
-  public List<Object> getList(String key, Pageable pageable){
+  public <T> List<T> getList(String key, Class<T> tClass){
     try {
-      return redisTemplate.opsForList().range(key, (long) pageable.getPageSize() *pageable.getPageNumber(), pageable.getPageSize());
+      List<T> res = new ArrayList<>();
+      List<Object> data = redisTemplate.opsForList().range(key, 0, -1);
+      if(Objects.nonNull(data)){
+        res.add(tClass.cast(data));
+      }
+      return res;
     }catch (Exception e){
       return new ArrayList<>();
     }

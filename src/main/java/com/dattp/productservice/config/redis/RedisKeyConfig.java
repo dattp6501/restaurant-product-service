@@ -20,8 +20,8 @@ public class RedisKeyConfig {
   //                                      KEY
   //=====================================================================================
   //================================== PRODUCT ==========================================
-  public static String genKeyAllDishOverview(){
-    return PREFIX_DISH + "overview";
+  public static String genKeyPageDishOverview(int page){
+    return String.format("%soverview::page:%d", PREFIX_DISH, page);
   }
   public static String genKeyDish(Long dishId){
     return PREFIX_DISH + dishId;
@@ -29,11 +29,14 @@ public class RedisKeyConfig {
 
   public static String genKeyCommentDish(Long dishId){return PREFIX_DISH + dishId + "::comment";}
 
-  public static String genKeyAllTableOverview(){
-    return PREFIX_TABLE + "overview";
+  public static String genKeyPageTableOverview(int page){
+    return String.format("%soverview::page::%d",PREFIX_TABLE, page);
   }
   public static String genKeyTable(Long tableId){
     return PREFIX_TABLE + tableId;
+  }
+  public static String genKeyTableFreeTime(Long tableId){
+    return String.format("%s%d::free_time",PREFIX_TABLE, tableId);
   }
   public static String genKeyCommentTable(Long tableId){return PREFIX_TABLE + tableId + "::comment";}
   //================================== AUTH ==========================================
