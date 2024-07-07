@@ -60,6 +60,7 @@ public class DishStorage extends Storage{
     if(dish != null) return dish;
 
     dish = dishRepository.findById(id).orElseThrow(() -> new BadRequestException(String.format("dish(id=%d) not found", id)));
+    redisService.setEntity(key,dish, RedisService.CacheTime.ONE_DAY);
     return dish;
   }
 
