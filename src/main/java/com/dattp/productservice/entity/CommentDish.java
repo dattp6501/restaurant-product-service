@@ -2,17 +2,7 @@ package com.dattp.productservice.entity;
 
 import java.io.Serializable;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import com.dattp.productservice.dto.dish.CommentDishRequestDTO;
 import com.dattp.productservice.utils.DateUtils;
@@ -51,6 +41,21 @@ public class CommentDish implements Serializable {
     @JoinColumn(name="dish_id")
     @JsonIgnore @Lazy
     private Dish dish;
+
+    @Column(name = "create_at")
+    private Long createAt;
+
+    @Column(name = "update_at")
+    private Long updateAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createAt = this.updateAt = DateUtils.getCurrentMils();
+    }
+    @PreUpdate
+    protected void onUpdate() {
+        this.updateAt = DateUtils.getCurrentMils();
+    }
 
     public CommentDish(){}
 

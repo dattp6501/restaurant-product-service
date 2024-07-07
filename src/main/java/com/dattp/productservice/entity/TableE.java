@@ -63,6 +63,14 @@ public class TableE implements Serializable {
     @Lazy @JsonIgnore
     private List<CommentTable> CommentTables;
 
+    @PrePersist
+    protected void onCreate() {
+        this.createAt = this.updateAt = DateUtils.getCurrentMils();
+    }
+    @PreUpdate
+    protected void onUpdate() {
+        this.updateAt = DateUtils.getCurrentMils();
+    }
 
     public TableE(){}
 

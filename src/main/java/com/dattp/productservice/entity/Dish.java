@@ -50,6 +50,15 @@ public class Dish implements Serializable {
     @Lazy @JsonIgnore
     private List<CommentDish> CommentDishs;
 
+    @PrePersist
+    protected void onCreate() {
+        this.createAt = this.updateAt = DateUtils.getCurrentMils();
+    }
+    @PreUpdate
+    protected void onUpdate() {
+        this.updateAt = DateUtils.getCurrentMils();
+    }
+
     public Dish() {
     }
 
