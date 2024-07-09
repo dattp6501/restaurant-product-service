@@ -58,12 +58,26 @@ jobs:
       - name: Build docker image
         run: |
           docker build \
-          --build-arg DB_URL=${{secrets.DB_URL}} --build-arg DB_USERNAME=${{secrets.DB_USERNAME}} --build-arg DB_PASSWORD=${{secrets.DB_PASSWORD}} \
+          --build-arg DB_URL=${{secrets.DB_URL}} \
+          --build-arg DB_USERNAME=${{secrets.DB_USERNAME}} \
+          --build-arg DB_PASSWORD=${{secrets.DB_PASSWORD}} \
           --build-arg JWT_SECRET_KEY=${{secrets.JWT_SECRET_KEY}} \
-          --build-arg REDIS_HOST=${{secrets.REDIS_HOST}} --build-arg REDIS_PORT=${{secrets.REDIS_PORT}} --build-arg REDIS_USERNAME=${{secrets.REDIS_USERNAME}} --build-arg REDIS_PASSWORD=${{secrets.REDIS_PASSWORD}} \
+          --build-arg REDIS_HOST=${{secrets.REDIS_HOST}} \
+          --build-arg REDIS_PORT=${{secrets.REDIS_PORT}} \
+          --build-arg REDIS_USERNAME=${{secrets.REDIS_USERNAME}} \
+          --build-arg REDIS_PASSWORD=${{secrets.REDIS_PASSWORD}} \
           --build-arg LOG_IP=${{secrets.LOG_IP}} --build-arg LOG_PORT=${{secrets.LOG_PORT}} --build-arg LOG_LEVEL=${{inputs.logLevel}} \
-          --build-arg KAFKA_TEST=${{inputs.enable_config_kafka_test}} --build-arg KAFKA_BOOTSTRAP_SERVER=${{secrets.KAFKA_BOOTSTRAP_SERVER}} --build-arg KAFKA_TEST_USERNAME=${{secrets.KAFKA_TEST_USERNAME}} --build-arg KAFKA_TEST_PASSWORD=${{secrets.KAFKA_TEST_PASSWORD}} \
-          --build-arg ENABLE_MONITOR_SYSTEM=${{inputs.enable_monitor_system}} --build-arg MONITOR_BOT_TOKEN=${{secrets.MONITOR_BOT_TOKEN}} --build-arg MONITOR_BOT_CHAT_ID=${{secrets.MONITOR_BOT_CHAT_ID}} \
+          --build-arg KAFKA_TEST=${{inputs.enable_config_kafka_test}} \
+          --build-arg KAFKA_BOOTSTRAP_SERVER=${{secrets.KAFKA_BOOTSTRAP_SERVER}} \
+          --build-arg KAFKA_TEST_USERNAME=${{secrets.KAFKA_TEST_USERNAME}} \
+          --build-arg KAFKA_TEST_PASSWORD=${{secrets.KAFKA_TEST_PASSWORD}} \
+          --build-arg KAFKA_SASL_JAAS_MODULE=${{KAFKA_SASL_JAAS_MODULE}} \
+          --build-arg KAFKA_SASL_MECHANISM=${{KAFKA_SASL_MECHANISM}} \
+          --build-arg KAFKA_SECURITY_PROTOCOL=${{KAFKA_SECURITY_PROTOCOL}} \
+          --build-arg KAFKA_TRUST_STORE_PASSWORD=${{KAFKA_TRUST_STORE_PASSWORD}} \
+          --build-arg ENABLE_MONITOR_SYSTEM=${{inputs.enable_monitor_system}} \
+          --build-arg MONITOR_BOT_TOKEN=${{secrets.MONITOR_BOT_TOKEN}} \
+          --build-arg MONITOR_BOT_CHAT_ID=${{secrets.MONITOR_BOT_CHAT_ID}} \
           -t ${{secrets.DOCKERHUB_USERNAME}}/restaurant-product-service:first .
 
       - name: Publish image to docker hub
