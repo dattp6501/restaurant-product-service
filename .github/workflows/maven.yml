@@ -71,10 +71,10 @@ jobs:
           --build-arg KAFKA_BOOTSTRAP_SERVER=${{secrets.KAFKA_BOOTSTRAP_SERVER}} \
           --build-arg KAFKA_TEST_USERNAME=${{secrets.KAFKA_TEST_USERNAME}} \
           --build-arg KAFKA_TEST_PASSWORD=${{secrets.KAFKA_TEST_PASSWORD}} \
-          --build-arg KAFKA_SASL_JAAS_MODULE=${{KAFKA_SASL_JAAS_MODULE}} \
-          --build-arg KAFKA_SASL_MECHANISM=${{KAFKA_SASL_MECHANISM}} \
-          --build-arg KAFKA_SECURITY_PROTOCOL=${{KAFKA_SECURITY_PROTOCOL}} \
-          --build-arg KAFKA_TRUST_STORE_PASSWORD=${{KAFKA_TRUST_STORE_PASSWORD}} \
+          --build-arg KAFKA_SASL_JAAS_MODULE=${{secrets.KAFKA_SASL_JAAS_MODULE}} \
+          --build-arg KAFKA_SASL_MECHANISM=${{secrets.KAFKA_SASL_MECHANISM}} \
+          --build-arg KAFKA_SECURITY_PROTOCOL=${{secrets.KAFKA_SECURITY_PROTOCOL}} \
+          --build-arg KAFKA_TRUST_STORE_PASSWORD=${{secrets.KAFKA_TRUST_STORE_PASSWORD}} \
           --build-arg ENABLE_MONITOR_SYSTEM=${{inputs.enable_monitor_system}} \
           --build-arg MONITOR_BOT_TOKEN=${{secrets.MONITOR_BOT_TOKEN}} \
           --build-arg MONITOR_BOT_CHAT_ID=${{secrets.MONITOR_BOT_CHAT_ID}} \
