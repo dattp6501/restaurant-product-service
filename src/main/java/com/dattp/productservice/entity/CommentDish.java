@@ -24,7 +24,7 @@ public class CommentDish implements Serializable {
     @Column(name="star", nullable=false)
     private int star;
 
-    @Column(name="comment", columnDefinition = "LONGTEXT")
+    @Column(name="comment", columnDefinition = "text")
     private String comment;
 
     @Column(name = "date_")

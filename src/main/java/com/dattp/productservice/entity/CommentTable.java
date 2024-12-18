@@ -27,7 +27,7 @@ public class CommentTable implements Serializable {
     @Column(name = "date_")
     private Long date;
 
-    @Column(name="comment", columnDefinition = "LONGTEXT")
+    @Column(name="comment", columnDefinition = "text")
     private String comment;
 
     @Embedded

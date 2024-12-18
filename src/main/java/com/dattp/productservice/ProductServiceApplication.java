@@ -16,13 +16,13 @@ import java.time.format.DateTimeFormatter;
 @SpringBootApplication
 @EnableSwagger2
 @EnableWebMvc
-public class ProductserviceApplication{
+public class ProductServiceApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(ProductserviceApplication.class, args);
+		SpringApplication.run(ProductServiceApplication.class, args);
 	}
 
 	@Bean
-	public CommandLineRunner CommandLineRunnerBean(TelegramService telegramService) {
+	public CommandLineRunner commandLineRunnerBean(TelegramService telegramService) {
 		return (args) -> {
 			String message =
 				DateUtils.getcurrentLocalDateTime()
