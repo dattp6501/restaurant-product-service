@@ -50,7 +50,7 @@ public class TableE implements Serializable {
     @JsonFormat(pattern = "HH:mm")
     private Date to;
 
-    @Column(name = "description", columnDefinition = "LONGTEXT")
+    @Column(name = "description", columnDefinition = "text")
     private String description;
 
     @Column(name = "create_at")
