@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = "*")
 public class InternalController {
   @GetMapping(value = "/isRunning", produces = {MediaType.APPLICATION_JSON_VALUE})
-  public ResponseEntity<Boolean> isRunning(){
+  public ResponseEntity<Boolean> isRunning() {
     return ResponseEntity.ok(true);
   }
 }

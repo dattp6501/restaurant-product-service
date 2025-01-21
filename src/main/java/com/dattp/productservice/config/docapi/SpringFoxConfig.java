@@ -4,7 +4,10 @@ import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
-import springfox.documentation.builders.*;
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.builders.RequestParameterBuilder;
 import springfox.documentation.service.Contact;
 import springfox.documentation.service.RequestParameter;
 import springfox.documentation.spi.DocumentationType;
@@ -22,19 +25,19 @@ public class SpringFoxConfig {
   @Bean
   public Docket api() {
     return new Docket(DocumentationType.SWAGGER_2)
-      .apiInfo(new ApiInfoBuilder()
-        .title("Product restaurant service documentations")
-        .description("Product restaurant service documentations")
-        .contact(new Contact("Dat mars", "dattp.com","dattp@gmailcom"))
-        .version("0.0.1")
+        .apiInfo(new ApiInfoBuilder()
+            .title("Product restaurant service documentations")
+            .description("Product restaurant service documentations")
+            .contact(new Contact("Dat mars", "dattp.com", "dattp@gmailcom"))
+            .version("0.0.1")
+            .build()
+        )
+        .select()
+        .apis(RequestHandlerSelectors.basePackage("com.dattp.productservice.controller"))
+        .paths(PathSelectors.ant("/api/**"))
         .build()
-      )
-      .select()
-      .apis(RequestHandlerSelectors.basePackage("com.dattp.productservice.controller"))
-      .paths(PathSelectors.ant("/api/**"))
-      .build()
-      .globalRequestParameters(parameters())
-      .produces(new HashSet<>(List.of(MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE)));
+        .globalRequestParameters(parameters())
+        .produces(new HashSet<>(List.of(MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE)));
   }
 
   private List<RequestParameter> parameters() {
@@ -50,16 +53,17 @@ public class SpringFoxConfig {
         if (context.findAnnotation(AddAuthorizedDocAPI.class).isPresent()) {
           // Add Authorization header
           context.operationBuilder().requestParameters(
-            List.of(new RequestParameterBuilder()
-              .name("access_token")
-              .required(true)
-              .in("header")
-              .description("Access token")
-              .build()
-            )
+              List.of(new RequestParameterBuilder()
+                  .name("access_token")
+                  .required(true)
+                  .in("header")
+                  .description("Access token")
+                  .build()
+              )
           );
         }
       }
+
       @Override
       public boolean supports(DocumentationType delimiter) {
         return true;

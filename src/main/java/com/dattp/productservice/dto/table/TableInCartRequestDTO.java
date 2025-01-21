@@ -8,6 +8,6 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 public class TableInCartRequestDTO {
-    @NotNull(message = "(tableId) Khong duoc de trong")
-    private Long tableId;
+  @NotNull(message = "(tableId) Khong duoc de trong")
+  private Long tableId;
 }

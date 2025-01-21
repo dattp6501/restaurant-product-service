@@ -1,7 +1,6 @@
 package com.dattp.productservice.config.redis;
 
 
-import com.dattp.productservice.entity.Dish;
 import com.dattp.productservice.utils.JSONUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -11,7 +10,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.SerializationException;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -48,9 +46,10 @@ public class RedisConfig {
     return template;
   }
 
-  private static class JSONCustomRedisSerializer<T> implements RedisSerializer<T>{
+  private static class JSONCustomRedisSerializer<T> implements RedisSerializer<T> {
     private final Class<T> type;
-    public JSONCustomRedisSerializer(Class<T> tClass){
+
+    public JSONCustomRedisSerializer(Class<T> tClass) {
       this.type = tClass;
     }
 

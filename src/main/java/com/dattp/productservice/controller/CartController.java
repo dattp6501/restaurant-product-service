@@ -16,47 +16,47 @@ import javax.validation.Valid;
 @RequestMapping("/api/product/user/cart")
 @CrossOrigin(origins = "*")
 public class CartController extends Controller {
-    @PostMapping(value = "/dish", produces = {MediaType.APPLICATION_JSON_VALUE})
-    @AddAuthorizedDocAPI
-    @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
-    public ResponseEntity<ResponseDTO> addDishToCart(@RequestBody @Valid DishInCartRequestDTO dto) throws Exception {
-        cartService.addDishToCart(dto);
-        return ResponseEntity.ok().body(
-            new ResponseDTO(
-                HttpStatus.OK.value(),
-                "Thành công",
-                null
-            )
-        );
-    }
+  @PostMapping(value = "/dish", produces = {MediaType.APPLICATION_JSON_VALUE})
+  @AddAuthorizedDocAPI
+  @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
+  public ResponseEntity<ResponseDTO> addDishToCart(@RequestBody @Valid DishInCartRequestDTO dto) throws Exception {
+    cartService.addDishToCart(dto);
+    return ResponseEntity.ok().body(
+        new ResponseDTO(
+            HttpStatus.OK.value(),
+            "Thành công",
+            null
+        )
+    );
+  }
 
 
-    @GetMapping(value = "/dish", produces = {MediaType.APPLICATION_JSON_VALUE})
-    @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
-    @AddAuthorizedDocAPI
-    public ResponseEntity<ResponseDTO> getListDishInCart() {
-        return ResponseEntity.ok(
-            new ResponseDTO(
-                HttpStatus.OK.value(),
-                "Thành công",
-                cartService.getListDish()
-            )
-        );
-    }
+  @GetMapping(value = "/dish", produces = {MediaType.APPLICATION_JSON_VALUE})
+  @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
+  @AddAuthorizedDocAPI
+  public ResponseEntity<ResponseDTO> getListDishInCart() {
+    return ResponseEntity.ok(
+        new ResponseDTO(
+            HttpStatus.OK.value(),
+            "Thành công",
+            cartService.getListDish()
+        )
+    );
+  }
 
-    @DeleteMapping(value = "/dish/{id}", produces = {MediaType.APPLICATION_JSON_VALUE})
-    @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
-    @AddAuthorizedDocAPI
-    public ResponseEntity<ResponseDTO> deleteDish(@PathVariable("id") Long dishId) {
-        cartService.deleteDish(dishId);
-        return ResponseEntity.ok(
-            new ResponseDTO(
-                HttpStatus.OK.value(),
-                "Thành công",
-                null
-            )
-        );
-    }
+  @DeleteMapping(value = "/dish/{id}", produces = {MediaType.APPLICATION_JSON_VALUE})
+  @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
+  @AddAuthorizedDocAPI
+  public ResponseEntity<ResponseDTO> deleteDish(@PathVariable("id") Long dishId) {
+    cartService.deleteDish(dishId);
+    return ResponseEntity.ok(
+        new ResponseDTO(
+            HttpStatus.OK.value(),
+            "Thành công",
+            null
+        )
+    );
+  }
 
 //  @PostMapping(value = "/table", produces = {MediaType.APPLICATION_JSON_VALUE})
 //  @AddAuthorizedDocAPI

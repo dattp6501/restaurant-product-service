@@ -19,28 +19,29 @@ public class JWTService {
   /*
    * Cac phuong thuc duoi chi su dung khi xac thuc tnanh cong
    * */
-  public Long getUserId(){
+  public Long getUserId() {
     return (Long) getDetails().get("id");
   }
 
-  public String getFullname(){
+  public String getFullname() {
     return getDetails().get("fullname").toString();
   }
 
-  public String getUsername(){
+  public String getUsername() {
     return getDetails().get("username").toString();
   }
 
-  public String getMail(){
+  public String getMail() {
     return getDetails().get("mail").toString();
   }
 
-  @SuppressWarnings(value="unchecked")
-  private Map<String, Object> getDetails(){
+  @SuppressWarnings(value = "unchecked")
+  private Map<String, Object> getDetails() {
     return (Map<String, Object>) SecurityContextHolder.getContext().getAuthentication().getDetails();
   }
+
   //
-  public Map<String, Object> getDetail(String accessToken){
+  public Map<String, Object> getDetail(String accessToken) {
     // tao giai thuat giai ma
     Algorithm algorithm = Algorithm.HMAC256(SECRET_KEY.getBytes());
     JWTVerifier jwtVerifier = JWT.require(algorithm).build();

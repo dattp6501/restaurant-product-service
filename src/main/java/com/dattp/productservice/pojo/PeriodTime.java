@@ -8,6 +8,6 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class PeriodTime implements Serializable {
-    private Long from;
-    private Long to;
+  private Long from;
+  private Long to;
 }

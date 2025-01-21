@@ -19,13 +19,14 @@ public class TableOverview implements Serializable {
   private Float price;
   private String description;
 
-  public TableOverview(){}
+  public TableOverview() {
+  }
 
-  public TableOverview(TableE table){
+  public TableOverview(TableE table) {
     copyProperties(table);
   }
 
-  public void copyProperties(TableE table){
+  public void copyProperties(TableE table) {
     BeanUtils.copyProperties(table, this);
     this.freeTime = new ArrayList<>();
   }

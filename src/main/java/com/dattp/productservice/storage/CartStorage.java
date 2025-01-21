@@ -15,37 +15,37 @@ import java.util.Map;
 
 @Component
 public class CartStorage extends Storage {
-    @Autowired
-    @Lazy
-    private DishStorage dishStorage;
+  @Autowired
+  @Lazy
+  private DishStorage dishStorage;
 
-    public void addDishToCart(Long dishId) {
-        String key = RedisKeyConfig.genKeyCartDish(jwtService.getUserId());
-        List<Long> dishIds = redisService.getHashAll(key, Long.class);
-        if (dishIds == null || dishIds.isEmpty()) {
-            Map<Object, Object> data = new HashMap<>();
-            data.put(dishId.toString(), dishId);
-            redisService.putHashAll(key, data, RedisService.CacheTime.ONE_MONTH);
-        } else {
-            redisService.addElemntHash(RedisKeyConfig.genKeyCartDish(jwtService.getUserId()), dishId.toString(), dishId, RedisService.CacheTime.ONE_MONTH);
+  public void addDishToCart(Long dishId) {
+    String key = RedisKeyConfig.genKeyCartDish(jwtService.getUserId());
+    List<Long> dishIds = redisService.getHashAll(key, Long.class);
+    if (dishIds == null || dishIds.isEmpty()) {
+      Map<Object, Object> data = new HashMap<>();
+      data.put(dishId.toString(), dishId);
+      redisService.putHashAll(key, data, RedisService.CacheTime.ONE_MONTH);
+    } else {
+      redisService.addElemntHash(RedisKeyConfig.genKeyCartDish(jwtService.getUserId()), dishId.toString(), dishId, RedisService.CacheTime.ONE_MONTH);
+    }
+  }
+
+  public void deleteDishInFromCart(Long dishId) {
+    redisService.deleteHash(RedisKeyConfig.genKeyCartDish(jwtService.getUserId()), dishId.toString());
+  }
+
+  public List<DishOverview> getListDishInCart(Long userId) {
+    List<DishOverview> dishOverview = new ArrayList<>();
+    List<Long> dishIds = redisService.getHashAll(RedisKeyConfig.genKeyCartDish(userId), Long.class);
+    if (dishIds != null && !dishIds.isEmpty()) {
+      dishIds.forEach(id -> {
+        Dish dish = dishStorage.getDetailFromCacheAndDb(id);
+        if (dish != null) {
+          dishOverview.add(new DishOverview(dish));
         }
+      });
     }
-
-    public void deleteDishInFromCart(Long dishId) {
-        redisService.deleteHash(RedisKeyConfig.genKeyCartDish(jwtService.getUserId()), dishId.toString());
-    }
-
-    public List<DishOverview> getListDishInCart(Long userId) {
-        List<DishOverview> dishOverview = new ArrayList<>();
-        List<Long> dishIds = redisService.getHashAll(RedisKeyConfig.genKeyCartDish(userId), Long.class);
-        if (dishIds != null && !dishIds.isEmpty()) {
-            dishIds.forEach(id -> {
-                Dish dish = dishStorage.getDetailFromCacheAndDb(id);
-                if (dish != null) {
-                    dishOverview.add(new DishOverview(dish));
-                }
-            });
-        }
-        return dishOverview;
-    }
+    return dishOverview;
+  }
 }

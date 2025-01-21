@@ -17,19 +17,19 @@ import java.time.format.DateTimeFormatter;
 @EnableSwagger2
 @EnableWebMvc
 public class ProductServiceApplication {
-	public static void main(String[] args) {
-		SpringApplication.run(ProductServiceApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(ProductServiceApplication.class, args);
+  }
 
-	@Bean
-	public CommandLineRunner commandLineRunnerBean(TelegramService telegramService) {
-		return (args) -> {
-			String message =
-				DateUtils.getcurrentLocalDateTime()
-					.plusHours(7)
-					.format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd"))
-					+": PRODUCT ===> STARTED";
-			telegramService.sendNotificatonMonitorSystem(message);
-		};
-	}
+  @Bean
+  public CommandLineRunner commandLineRunnerBean(TelegramService telegramService) {
+    return (args) -> {
+      String message =
+          DateUtils.getcurrentLocalDateTime()
+              .plusHours(7)
+              .format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd"))
+              + ": PRODUCT ===> STARTED";
+      telegramService.sendNotificatonMonitorSystem(message);
+    };
+  }
 }

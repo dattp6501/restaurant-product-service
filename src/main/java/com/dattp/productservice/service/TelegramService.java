@@ -20,13 +20,13 @@ public class TelegramService extends com.dattp.productservice.service.Service {
   @Value("${telegram.monitor_bot_chat_id}")
   private String MONITOR_BOT_CHAT_ID;
 
-  public void sendNotificatonMonitorSystem(String message){
-    if(ENABLE_MONITOR_SYSTEM){
+  public void sendNotificatonMonitorSystem(String message) {
+    if (ENABLE_MONITOR_SYSTEM) {
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_JSON);
 
       JsonObject request = new JsonObject();
-      request.addProperty("text", "\uD83D\uDCD5 "+message);
+      request.addProperty("text", "\uD83D\uDCD5 " + message);
       request.addProperty("parse_mode", "HTML");
       request.addProperty("disable_web_page_preview", false);
       request.addProperty("chat_id", MONITOR_BOT_CHAT_ID);

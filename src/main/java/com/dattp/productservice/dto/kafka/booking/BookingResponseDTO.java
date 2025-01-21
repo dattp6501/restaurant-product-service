@@ -12,35 +12,37 @@ import java.util.List;
 @Getter
 @Setter
 public class BookingResponseDTO {
-    private Long id;
+  private Long id;
 
-    private Long CustomerId;
+  private Long CustomerId;
 
-    private String custemerFullname;
+  private String custemerFullname;
 
-    private int state;
+  private int state;
 
-    private boolean paid;
+  private boolean paid;
 
-    @JsonFormat(pattern = "HH:mm:ss dd/MM/yyyy")
-    private LocalDateTime from;
+  @JsonFormat(pattern = "HH:mm:ss dd/MM/yyyy")
+  private LocalDateTime from;
 
-    @JsonFormat(pattern = "HH:mm:ss dd/MM/yyyy")
-    private LocalDateTime to;
+  @JsonFormat(pattern = "HH:mm:ss dd/MM/yyyy")
+  private LocalDateTime to;
 
-    private float deposits;
+  private float deposits;
 
-    private String description;
+  private String description;
 
-    @JsonFormat(pattern = "HH:mm:ss dd/MM/yyyy")
-    private LocalDateTime createAt;
+  @JsonFormat(pattern = "HH:mm:ss dd/MM/yyyy")
+  private LocalDateTime createAt;
 
-    @JsonFormat(pattern = "HH:mm:ss dd/MM/yyyy")
-    private LocalDateTime updateAt;
+  @JsonFormat(pattern = "HH:mm:ss dd/MM/yyyy")
+  private LocalDateTime updateAt;
 
-    private List<BookedTableResponseDTO> bookedTables;
+  private List<BookedTableResponseDTO> bookedTables;
 
-    private List<BookedDishResponseDTO> dishs;
+  private List<BookedDishResponseDTO> dishs;
 
-    public BookingResponseDTO(){super();}
+  public BookingResponseDTO() {
+    super();
+  }
 }

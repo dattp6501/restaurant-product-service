@@ -8,7 +8,13 @@ import org.springframework.context.annotation.Lazy;
 
 @org.springframework.stereotype.Controller
 public class Controller {
-  @Autowired @Lazy protected DishService dishService;
-  @Autowired @Lazy protected TableService tableService;
-  @Autowired @Lazy protected CartService cartService;
+  @Autowired
+  @Lazy
+  protected DishService dishService;
+  @Autowired
+  @Lazy
+  protected TableService tableService;
+  @Autowired
+  @Lazy
+  protected CartService cartService;
 }

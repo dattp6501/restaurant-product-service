@@ -1,7 +1,6 @@
 package com.dattp.productservice.config.redis;
 
 
-
 public class RedisKeyConfig {
   public static final String PREFIX_APP = "restaurant::";
   //================================== AUTH ===================
@@ -16,39 +15,50 @@ public class RedisKeyConfig {
   public static final String PREFIX_CART = PREFIX_ORDER + "cart::";
   public static final String PREFIX_CART_DISH = PREFIX_CART + "dish::";
   public static final String PREFIX_CART_TABLE = PREFIX_CART + "table::";
+
   //=====================================================================================
   //                                      KEY
   //=====================================================================================
   //================================== PRODUCT ==========================================
-  public static String genKeyPageDishOverview(int page){
+  public static String genKeyPageDishOverview(int page) {
     return String.format("%soverview::page:%d", PREFIX_DISH, page);
   }
-  public static String genKeyDish(Long dishId){
+
+  public static String genKeyDish(Long dishId) {
     return PREFIX_DISH + dishId;
   }
 
-  public static String genKeyCommentDish(Long dishId){return PREFIX_DISH + dishId + "::comment";}
-
-  public static String genKeyPageTableOverview(int page){
-    return String.format("%soverview::page::%d",PREFIX_TABLE, page);
+  public static String genKeyCommentDish(Long dishId) {
+    return PREFIX_DISH + dishId + "::comment";
   }
-  public static String genKeyTable(Long tableId){
+
+  public static String genKeyPageTableOverview(int page) {
+    return String.format("%soverview::page::%d", PREFIX_TABLE, page);
+  }
+
+  public static String genKeyTable(Long tableId) {
     return PREFIX_TABLE + tableId;
   }
-  public static String genKeyTableFreeTime(Long tableId){
-    return String.format("%s%d::free_time",PREFIX_TABLE, tableId);
+
+  public static String genKeyTableFreeTime(Long tableId) {
+    return String.format("%s%d::free_time", PREFIX_TABLE, tableId);
   }
-  public static String genKeyCommentTable(Long tableId){return PREFIX_TABLE + tableId + "::comment";}
+
+  public static String genKeyCommentTable(Long tableId) {
+    return PREFIX_TABLE + tableId + "::comment";
+  }
+
   //================================== AUTH ==========================================
-  public static String genKeyToken(Long userId){
+  public static String genKeyToken(Long userId) {
     return FREFIX_TOKEN + userId;
   }
 
   //================================== PRODUCT ==========================================
-  public static String genKeyCartDish(Long userId){
+  public static String genKeyCartDish(Long userId) {
     return PREFIX_CART_DISH + userId;
   }
-  public static String genKeyCartTable(Long userId){
+
+  public static String genKeyCartTable(Long userId) {
     return PREFIX_CART_TABLE + userId;
   }
 }

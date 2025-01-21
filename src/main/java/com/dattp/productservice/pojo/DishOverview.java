@@ -17,21 +17,21 @@ public class DishOverview implements Serializable {
   private String image;
   private String description;
 
-  public DishOverview(){
+  public DishOverview() {
   }
 
-  public DishOverview(Dish dish){
+  public DishOverview(Dish dish) {
     copyProperties(dish);
   }
 
-  public void copyProperties(Dish dish){
-    BeanUtils.copyProperties(dish, this);
-  }
-
-  public static Dish toDish(DishOverview dishOverview){
+  public static Dish toDish(DishOverview dishOverview) {
     Dish dish = new Dish();
     BeanUtils.copyProperties(dishOverview, dish);
     return dish;
+  }
+
+  public void copyProperties(Dish dish) {
+    BeanUtils.copyProperties(dish, this);
   }
 
   @Override

@@ -7,5 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class KafkaListener {
-    @Autowired @Lazy BookingService bookingService;
+  @Autowired
+  @Lazy
+  BookingService bookingService;
 }

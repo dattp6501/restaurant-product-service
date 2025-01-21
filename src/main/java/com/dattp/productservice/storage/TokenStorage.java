@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 
 @Component
-public class TokenStorage extends Storage{
-  public AuthResponseDTO get(Long userId){
+public class TokenStorage extends Storage {
+  public AuthResponseDTO get(Long userId) {
     AuthResponseDTO token = redisService.getEntity(RedisKeyConfig.genKeyToken(userId), AuthResponseDTO.class);
-    if(Objects.isNull(token)) throw new BadRequestException("token invalid");
+    if (Objects.isNull(token)) throw new BadRequestException("token invalid");
     return token;
   }
 }

@@ -1,16 +1,6 @@
 package com.dattp.productservice.config.kafka;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
-import com.dattp.productservice.dto.dish.DishResponseDTO;
-import com.dattp.productservice.dto.kafka.booking.BookingResponseDTO;
-import com.dattp.productservice.dto.table.TableResponseDTO;
-//import org.apache.kafka.clients.producer.ProducerConfig;
-//import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 //import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 //import org.springframework.kafka.core.KafkaTemplate;
@@ -20,20 +10,20 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class KafkaProducerConfig {
-    @Value("${spring.kafka.bootstrap-servers}")
-    private String BOOTSTRAP_SERVER;
+  @Value("${spring.kafka.bootstrap-servers}")
+  private String BOOTSTRAP_SERVER;
 
-    @Value("${kafka.test}")
-    private boolean KAFKA_TEST;
+  @Value("${kafka.test}")
+  private boolean KAFKA_TEST;
 
-    @Value("${spring.kafka.properties.sasl.jaas.config}")
-    private String SASL_JAAS_CONFIG;
-    @Value("${spring.kafka.properties.sasl.mechanism}")
-    private String SASL_MECHANISM;
-    @Value("${spring.kafka.properties.security.protocol}")
-    private String SECURITY_PROTOCOL;
-    @Value("${spring.kafka.properties.sasl.trust_store_password}")
-    private String TRUST_STORE_PASSWORD;
+  @Value("${spring.kafka.properties.sasl.jaas.config}")
+  private String SASL_JAAS_CONFIG;
+  @Value("${spring.kafka.properties.sasl.mechanism}")
+  private String SASL_MECHANISM;
+  @Value("${spring.kafka.properties.security.protocol}")
+  private String SECURITY_PROTOCOL;
+  @Value("${spring.kafka.properties.sasl.trust_store_password}")
+  private String TRUST_STORE_PASSWORD;
 
 //    public Map<String, Object> producerConfig(){
 //        Map<String,Object> props = new HashMap<>();
