@@ -2,9 +2,11 @@ package com.dattp.productservice.controller.user;
 
 import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
 import com.dattp.productservice.controller.Controller;
-import com.dattp.productservice.dto.ResponseDTO;
 import com.dattp.productservice.controller.user.dto.CommentDishRequestDTO;
+import com.dattp.productservice.dto.ResponseDTO;
 import com.dattp.productservice.entity.CommentDish;
+import com.dattp.productservice.pojo.DishOverview;
+import com.dattp.productservice.response.PageSliceResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -19,13 +21,9 @@ import javax.validation.Valid;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class DishControllerUser extends Controller {
   @GetMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE})
-  public ResponseEntity<ResponseDTO> getDishs(Pageable pageable) {//page=?&size=?
+  public ResponseEntity<PageSliceResponse<DishOverview>> findPageDish(Pageable pageable) {//page=?&size=?
     return ResponseEntity.ok(
-        new ResponseDTO(
-            HttpStatus.OK.value(),
-            "Thành công",
-            dishService.getDishsOverview(pageable)
-        )
+        dishService.findPageDish(pageable)
     );
   }
 

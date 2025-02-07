@@ -1,6 +1,9 @@
 package com.dattp.productservice.config.redis;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
 
+@Component
 public class RedisKeyConfig {
   public static final String PREFIX_APP = "restaurant::";
   //================================== AUTH ===================
@@ -20,6 +23,10 @@ public class RedisKeyConfig {
   //                                      KEY
   //=====================================================================================
   //================================== PRODUCT ==========================================
+  public static String genKeyPage(Pageable pageable) {
+    return String.format("page:%d_%d", pageable.getPageNumber(), pageable.getPageSize());
+  }
+
   public static String genKeyPageDishOverview(int page) {
     return String.format("%soverview::page:%d", PREFIX_DISH, page);
   }

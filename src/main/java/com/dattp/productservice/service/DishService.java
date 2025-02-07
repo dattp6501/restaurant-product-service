@@ -12,6 +12,7 @@ import com.dattp.productservice.entity.User;
 import com.dattp.productservice.entity.state.DishState;
 import com.dattp.productservice.exception.BadRequestException;
 import com.dattp.productservice.pojo.DishOverview;
+import com.dattp.productservice.response.PageSliceResponse;
 import lombok.extern.log4j.Log4j2;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -19,6 +20,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -37,15 +39,17 @@ public class DishService extends com.dattp.productservice.service.Service {
   /*
    * get list dish
    * */
-  @Cacheable(value = "product", key = "'a'")
-  public List<DishOverview> getDishsOverview(Pageable pageable) {
-    return dishStorage.findListFromCacheAndDB(pageable);
+  @Cacheable(value = RedisKeyConfig.PREFIX_PRODUCT, key = "@redisKeyConfig.genKeyPage(#pageable)")
+  public PageSliceResponse<DishOverview> findPageDish(Pageable pageable) {
+    Slice<Dish> dishs = dishRepository.findDishesByStateIn(List.of(DishState.ACTIVE), pageable);
+    return PageSliceResponse.createFrom(dishs.map(DishOverview::new));
   }
 
   public List<DishOverview> getDishsHot(Pageable pageable) {
-    List<DishOverview> dishs = dishStorage.findListFromCacheAndDB(pageable);
-    if (dishs.size() > 10) return dishs.subList(0, 10);
-    return dishs;
+    Slice<Dish> dishs = dishRepository.findDishesByStateIn(List.of(DishState.ACTIVE), pageable);
+    List<DishOverview> response = dishs.stream().map(DishOverview::new).toList();
+    if (response.size() > 10) return response.subList(0, 10);
+    return response;
   }
 
   /*
