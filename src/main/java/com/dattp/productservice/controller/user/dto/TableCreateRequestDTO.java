@@ -1,4 +1,4 @@
-package com.dattp.productservice.dto.table;
+package com.dattp.productservice.controller.user.dto;
 
 import com.dattp.productservice.entity.state.TableState;
 import com.fasterxml.jackson.annotation.JsonFormat;

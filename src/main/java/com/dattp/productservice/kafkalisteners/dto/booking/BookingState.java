@@ -1,4 +1,4 @@
-package com.dattp.productservice.dto.kafka.booking;
+package com.dattp.productservice.kafkalisteners.dto.booking;
 
 public enum BookingState {
   NEW,

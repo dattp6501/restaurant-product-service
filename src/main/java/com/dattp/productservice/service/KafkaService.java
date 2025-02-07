@@ -1,8 +1,8 @@
 package com.dattp.productservice.service;
 
-import com.dattp.productservice.dto.dish.DishResponseDTO;
-import com.dattp.productservice.dto.kafka.booking.BookingResponseDTO;
-import com.dattp.productservice.dto.table.TableResponseDTO;
+import com.dattp.productservice.controller.user.response.DishResponseDTO;
+import com.dattp.productservice.kafkalisteners.dto.booking.BookingResponseDTO;
+import com.dattp.productservice.controller.user.response.TableResponseDTO;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;

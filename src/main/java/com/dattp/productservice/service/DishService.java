@@ -2,10 +2,10 @@ package com.dattp.productservice.service;
 
 import com.dattp.productservice.config.kafka.KafkaTopicConfig;
 import com.dattp.productservice.config.redis.RedisKeyConfig;
-import com.dattp.productservice.dto.dish.CommentDishResponseDTO;
-import com.dattp.productservice.dto.dish.DishCreateRequestDTO;
-import com.dattp.productservice.dto.dish.DishResponseDTO;
-import com.dattp.productservice.dto.dish.DishUpdateRequestDTO;
+import com.dattp.productservice.controller.user.dto.DishCreateRequestDTO;
+import com.dattp.productservice.controller.user.dto.DishUpdateRequestDTO;
+import com.dattp.productservice.controller.user.response.CommentDishResponseDTO;
+import com.dattp.productservice.controller.user.response.DishResponseDTO;
 import com.dattp.productservice.entity.CommentDish;
 import com.dattp.productservice.entity.Dish;
 import com.dattp.productservice.entity.User;
@@ -17,6 +17,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,7 @@ public class DishService extends com.dattp.productservice.service.Service {
   /*
    * get list dish
    * */
+  @Cacheable(value = "product", key = "'a'")
   public List<DishOverview> getDishsOverview(Pageable pageable) {
     return dishStorage.findListFromCacheAndDB(pageable);
   }

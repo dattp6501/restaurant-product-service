@@ -1,4 +1,4 @@
-package com.dattp.productservice.dto.table;
+package com.dattp.productservice.controller.user.dto;
 
 import lombok.Getter;
 import lombok.Setter;

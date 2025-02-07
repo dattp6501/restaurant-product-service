@@ -1,4 +1,4 @@
-package com.dattp.productservice.controller;
+package com.dattp.productservice.controller.internal;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

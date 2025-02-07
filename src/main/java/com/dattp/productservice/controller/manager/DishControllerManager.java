@@ -1,9 +1,10 @@
-package com.dattp.productservice.controller;
+package com.dattp.productservice.controller.manager;
 
 import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
+import com.dattp.productservice.controller.Controller;
 import com.dattp.productservice.dto.ResponseDTO;
-import com.dattp.productservice.dto.table.TableCreateRequestDTO;
-import com.dattp.productservice.dto.table.TableUpdateRequestDTO;
+import com.dattp.productservice.controller.user.dto.DishCreateRequestDTO;
+import com.dattp.productservice.controller.user.dto.DishUpdateRequestDTO;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -16,84 +17,72 @@ import javax.validation.Valid;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/product/manage/table")
-@CrossOrigin(origins = "*", allowedHeaders = "*")
-public class TableControllerManager extends Controller {
-  /*
-   * get tables
-   * */
+@RequestMapping("/api/product/manage/dish")
+@CrossOrigin(origins = "*")
+public class DishControllerManager extends Controller {
   @GetMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE})
   @AddAuthorizedDocAPI
   @RolesAllowed({"ROLE_ADMIN", "ROLE_PRODUCT_UPDATE", "ROLE_PRODUCT_DELETE"})
-  public ResponseEntity<ResponseDTO> getAllTable(Pageable pageable) {
+  public ResponseEntity<?> getDishs(Pageable pageable) {//page=?&size=?
     return ResponseEntity.ok().body(
         new ResponseDTO(
             HttpStatus.OK.value(),
             "Thành công",
-            tableService.getAllFromDB(pageable)
+            dishService.getDishsFromDB(pageable)
         )
     );
   }
 
-  /*
-   * get table detail
-   * */
-  @GetMapping(value = "/{table_id}", produces = {MediaType.APPLICATION_JSON_VALUE})
+  @GetMapping(value = "/{dish_id}", produces = {MediaType.APPLICATION_JSON_VALUE})
   @AddAuthorizedDocAPI
   @RolesAllowed({"ROLE_ADMIN", "ROLE_PRODUCT_UPDATE", "ROLE_PRODUCT_DELETE"})
-  public ResponseEntity<ResponseDTO> getTableDetail(@PathVariable("table_id") Long id) {
+  public ResponseEntity<ResponseDTO> getDishDetail(@PathVariable("dish_id") long id) {
     return ResponseEntity.ok().body(
         new ResponseDTO(
             HttpStatus.OK.value(),
             "Thành công",
-            tableService.getDetailDB(id)
+            dishService.getDetailFromDB(id)
         )
     );
   }
 
-  /*
-   * create table
-   * */
+
   @PostMapping(value = "/save", produces = {MediaType.APPLICATION_JSON_VALUE})
   @AddAuthorizedDocAPI
   @RolesAllowed({"ROLE_ADMIN", "ROLE_PRODUCT_NEW"})
-  public ResponseEntity<ResponseDTO> create(@RequestBody @Valid TableCreateRequestDTO tableReq) {
+  public ResponseEntity<?> create(@RequestBody @Valid DishCreateRequestDTO dishReq) {
     return ResponseEntity.ok().body(
-        new ResponseDTO(
-            HttpStatus.OK.value(),
+        new ResponseDTO(HttpStatus.OK.value(),
             "Thành công",
-            tableService.create(tableReq)
+            dishService.create(dishReq)
         )
     );
   }
 
-  /*
-   * create table with excel
-   * */
   @PostMapping(value = "/save_with_excel", produces = {MediaType.APPLICATION_JSON_VALUE})
   @AddAuthorizedDocAPI
   @RolesAllowed({"ROLE_ADMIN", "ROLE_PRODUCT_NEW"})
-  public ResponseEntity<ResponseDTO> save(@RequestParam("file") MultipartFile file) throws IOException {
+  public ResponseEntity<?> createByExcel(@RequestParam("file") MultipartFile file) throws IOException {
     return ResponseEntity.ok().body(
         new ResponseDTO(
             HttpStatus.OK.value(),
             "Thành công",
-            tableService.createByExcel(file.getInputStream())
+            dishService.createByExcel(file.getInputStream())
         )
     );
   }
 
-  @PostMapping(value = "/update_table", produces = {MediaType.APPLICATION_JSON_VALUE})
+
+  @PostMapping(value = "/update", produces = {MediaType.APPLICATION_JSON_VALUE})
   @AddAuthorizedDocAPI
   @RolesAllowed({"ROLE_ADMIN", "ROLE_PRODUCT_UPDATE"})
-  public ResponseEntity<ResponseDTO> updateTable(@RequestBody @Valid TableUpdateRequestDTO dto) {
+  public ResponseEntity<?> updateDish(@RequestBody @Valid DishUpdateRequestDTO dishRequestDTO) {
     return ResponseEntity.ok().body(
         new ResponseDTO(
             HttpStatus.OK.value(),
             "Thành công",
-            tableService.update(dto)
+            dishService.update(dishRequestDTO)
         )
     );
   }
-
 }

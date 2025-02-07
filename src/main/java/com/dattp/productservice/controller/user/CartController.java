@@ -1,8 +1,9 @@
-package com.dattp.productservice.controller;
+package com.dattp.productservice.controller.user;
 
 import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
+import com.dattp.productservice.controller.Controller;
 import com.dattp.productservice.dto.ResponseDTO;
-import com.dattp.productservice.dto.dish.DishInCartRequestDTO;
+import com.dattp.productservice.controller.user.dto.DishInCartRequestDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

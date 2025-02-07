@@ -1,4 +1,4 @@
-package com.dattp.productservice.dto.kafka.bookedtable;
+package com.dattp.productservice.kafkalisteners.dto.bookedtable;
 
 import com.dattp.productservice.entity.state.TableState;
 import com.fasterxml.jackson.annotation.JsonFormat;

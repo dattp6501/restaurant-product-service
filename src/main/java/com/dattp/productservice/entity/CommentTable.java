@@ -1,6 +1,6 @@
 package com.dattp.productservice.entity;
 
-import com.dattp.productservice.dto.table.CommentTableRequestDTO;
+import com.dattp.productservice.controller.user.dto.CommentTableRequestDTO;
 import com.dattp.productservice.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;

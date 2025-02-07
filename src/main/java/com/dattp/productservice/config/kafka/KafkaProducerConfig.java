@@ -1,8 +1,8 @@
 package com.dattp.productservice.config.kafka;
 
-import com.dattp.productservice.dto.dish.DishResponseDTO;
-import com.dattp.productservice.dto.kafka.booking.BookingResponseDTO;
-import com.dattp.productservice.dto.table.TableResponseDTO;
+import com.dattp.productservice.controller.user.response.DishResponseDTO;
+import com.dattp.productservice.kafkalisteners.dto.booking.BookingResponseDTO;
+import com.dattp.productservice.controller.user.response.TableResponseDTO;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;

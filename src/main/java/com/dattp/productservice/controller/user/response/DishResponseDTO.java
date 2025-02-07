@@ -1,4 +1,4 @@
-package com.dattp.productservice.dto.dish;
+package com.dattp.productservice.controller.user.response;
 
 import com.dattp.productservice.entity.Dish;
 import com.dattp.productservice.entity.state.DishState;

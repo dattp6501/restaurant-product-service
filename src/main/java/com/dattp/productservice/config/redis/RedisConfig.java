@@ -1,18 +1,21 @@
 package com.dattp.productservice.config.redis;
 
 
-import com.dattp.productservice.utils.JSONUtils;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.cache.RedisCacheManagerBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.SerializationException;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
+
+import java.time.Duration;
 
 @Configuration
 public class RedisConfig {
@@ -26,41 +29,30 @@ public class RedisConfig {
   private String redisPassword;
 
   @Bean
-  public LettuceConnectionFactory redisConnectionFactory() {
-    RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
-    configuration.setHostName(redisHost);
-    configuration.setPort(redisPort);
-    configuration.setPassword(redisPassword);
-    return new LettuceConnectionFactory(configuration);
+  public ObjectMapper objectMapper() {
+    ObjectMapper objectMapper = new ObjectMapper();
+    objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+    objectMapper.activateDefaultTyping(
+        objectMapper.getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL
+    );
+    objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+    return objectMapper;
   }
 
   @Bean
-  @Primary
-  public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-    RedisTemplate<Object, Object> template = new RedisTemplate<>();
-    template.setConnectionFactory(redisConnectionFactory);
-    template.setKeySerializer(new StringRedisSerializer());
-    template.setValueSerializer(new JSONCustomRedisSerializer<>(String.class));
-    template.setHashKeySerializer(new StringRedisSerializer());
-    template.setHashValueSerializer(new JSONCustomRedisSerializer<>(String.class));
-    return template;
+  public RedisCacheConfiguration cacheConfiguration(ObjectMapper objectMapper) {
+    GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(objectMapper);
+
+    return RedisCacheConfiguration.defaultCacheConfig()
+        .entryTtl(Duration.ofMinutes(60)) // TTL 60 phút
+        .disableCachingNullValues()
+        .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer));
   }
 
-  private static class JSONCustomRedisSerializer<T> implements RedisSerializer<T> {
-    private final Class<T> type;
-
-    public JSONCustomRedisSerializer(Class<T> tClass) {
-      this.type = tClass;
-    }
-
-    @Override
-    public byte[] serialize(T t) throws SerializationException {
-      return JSONUtils.toByteArray(JSONUtils.toJson(t));
-    }
-
-    @Override
-    public T deserialize(byte[] bytes) throws SerializationException {
-      return JSONUtils.toStringJson(bytes, type);
-    }
+  @Bean
+  public RedisCacheManager cacheManager(RedisConnectionFactory redisConnectionFactory, ObjectMapper objectMapper) {
+    return RedisCacheManager.builder(redisConnectionFactory)
+        .cacheDefaults(cacheConfiguration(objectMapper)) // Sử dụng cấu hình JSON
+        .build();
   }
 }

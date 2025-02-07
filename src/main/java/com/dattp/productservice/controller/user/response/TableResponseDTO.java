@@ -1,4 +1,4 @@
-package com.dattp.productservice.dto.table;
+package com.dattp.productservice.controller.user.response;
 
 import com.dattp.productservice.entity.TableE;
 import com.dattp.productservice.entity.state.TableState;

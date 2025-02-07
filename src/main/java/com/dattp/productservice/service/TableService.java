@@ -2,10 +2,10 @@ package com.dattp.productservice.service;
 
 import com.dattp.productservice.config.kafka.KafkaTopicConfig;
 import com.dattp.productservice.config.redis.RedisKeyConfig;
-import com.dattp.productservice.dto.table.CommentTableResponseDTO;
-import com.dattp.productservice.dto.table.TableCreateRequestDTO;
-import com.dattp.productservice.dto.table.TableResponseDTO;
-import com.dattp.productservice.dto.table.TableUpdateRequestDTO;
+import com.dattp.productservice.controller.user.response.CommentTableResponseDTO;
+import com.dattp.productservice.controller.user.dto.TableCreateRequestDTO;
+import com.dattp.productservice.controller.user.response.TableResponseDTO;
+import com.dattp.productservice.controller.user.dto.TableUpdateRequestDTO;
 import com.dattp.productservice.entity.CommentTable;
 import com.dattp.productservice.entity.TableE;
 import com.dattp.productservice.entity.User;

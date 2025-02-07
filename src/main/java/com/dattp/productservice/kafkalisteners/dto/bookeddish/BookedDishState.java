@@ -1,4 +1,4 @@
-package com.dattp.productservice.dto.kafka.bookeddish;
+package com.dattp.productservice.kafkalisteners.dto.bookeddish;
 
 public enum BookedDishState {
   PROCESSING,

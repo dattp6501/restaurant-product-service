@@ -1,4 +1,4 @@
-package com.dattp.productservice.dto.dish;
+package com.dattp.productservice.controller.user.response;
 
 import com.dattp.productservice.entity.CommentDish;
 import com.dattp.productservice.entity.User;

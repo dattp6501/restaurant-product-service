@@ -26,17 +26,7 @@ public class DishStorage extends Storage {
    * user
    * */
   public List<DishOverview> findListFromCacheAndDB(Pageable pageable) {
-    List<DishOverview> dishs = null;
-    if (cacheEnable) {
-      String key = RedisKeyConfig.genKeyPageDishOverview(pageable.getPageNumber());
-      dishs = redisService.getHashAll(key, DishOverview.class);
-      log.debug("======>  findListFromCacheAndDB::dish::cache::{}", Objects.nonNull(dishs) ? dishs.size() : dishs);
-    }
-
-    if (Objects.isNull(dishs)) {
-      dishs = getDishOverviewCache(pageable);
-    }
-    return dishs;
+    return getDishOverviewCache(pageable);
   }
 
   public List<DishOverview> getDishOverviewCache(Pageable pageable) {

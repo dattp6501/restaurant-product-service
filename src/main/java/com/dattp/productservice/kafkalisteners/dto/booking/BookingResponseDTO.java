@@ -1,7 +1,7 @@
-package com.dattp.productservice.dto.kafka.booking;
+package com.dattp.productservice.kafkalisteners.dto.booking;
 
-import com.dattp.productservice.dto.kafka.bookeddish.BookedDishResponseDTO;
-import com.dattp.productservice.dto.kafka.bookedtable.BookedTableResponseDTO;
+import com.dattp.productservice.kafkalisteners.dto.bookeddish.BookedDishResponseDTO;
+import com.dattp.productservice.kafkalisteners.dto.bookedtable.BookedTableResponseDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
