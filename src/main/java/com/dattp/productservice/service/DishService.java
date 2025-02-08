@@ -1,5 +1,6 @@
 package com.dattp.productservice.service;
 
+import com.dattp.productservice.base.response.dish.DishOverviewResponse;
 import com.dattp.productservice.config.kafka.KafkaTopicConfig;
 import com.dattp.productservice.config.redis.RedisKeyConfig;
 import com.dattp.productservice.controller.manager.response.DishDetailManageResponse;
@@ -13,7 +14,6 @@ import com.dattp.productservice.entity.Dish;
 import com.dattp.productservice.entity.User;
 import com.dattp.productservice.entity.state.DishState;
 import com.dattp.productservice.exception.BadRequestException;
-import com.dattp.productservice.base.response.dish.DishOverviewResponse;
 import com.dattp.productservice.response.PageSliceResponse;
 import lombok.extern.log4j.Log4j2;
 import org.apache.poi.ss.usermodel.Row;
@@ -117,8 +117,10 @@ public class DishService extends com.dattp.productservice.service.Service {
         .collect(Collectors.toList());
   }
 
-  public DishDetailUserResponseResponse getDetailFromDB(Long id) {
-    return new DishDetailUserResponseResponse(dishStorage.getDetailDishFromDB(id));
+  public DishDetailUserResponseResponse getDetailManager(Long id) {
+    return new DishDetailUserResponseResponse(
+        dishRepository.findById(id).orElseThrow(() -> new BadRequestException(String.format("dish(id=%d) not found", id)))
+    );
   }
 
   /*

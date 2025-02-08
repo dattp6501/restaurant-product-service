@@ -26,12 +26,6 @@ public class Storage {
 
   @Autowired
   @Lazy
-  protected DishRepository dishRepository;
-  @Autowired
-  @Lazy
-  protected CommentDishRepository commentDishRepository;
-  @Autowired
-  @Lazy
   protected TableRepository tableRepository;
   @Autowired
   @Lazy

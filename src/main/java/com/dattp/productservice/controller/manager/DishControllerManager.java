@@ -46,7 +46,7 @@ public class DishControllerManager extends Controller {
         BaseResponse.builder()
             .code(ErrorMessage.SUCCESS.getStatus().value())
             .message(ErrorMessage.SUCCESS.getMessage())
-            .data(dishService.getDetailFromDB(id))
+            .data(dishService.getDetailManager(id))
             .build()
     );
   }
