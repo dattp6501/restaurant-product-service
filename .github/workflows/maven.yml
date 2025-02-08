@@ -7,6 +7,9 @@
 # documentation.
 name: CI restaurant
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       logLevel:
@@ -38,7 +41,7 @@ jobs:
   build:
     runs-on: [ubuntu-latest]
     environment:
-      name: ${{inputs.environment}}
+      name: ${{inputs.environment || 'DEV'}}
     steps:
       - name: Checkout source
         uses: actions/checkout@v3
