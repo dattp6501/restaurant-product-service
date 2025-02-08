@@ -1,5 +1,6 @@
-package com.dattp.productservice.pojo;
+package com.dattp.productservice.base.response.dish;
 
+import com.dattp.productservice.base.response.ProductBaseResponse;
 import com.dattp.productservice.entity.Dish;
 import com.dattp.productservice.utils.JSONUtils;
 import lombok.Getter;
@@ -10,28 +11,19 @@ import java.io.Serializable;
 
 @Getter
 @Setter
-public class DishOverview implements Serializable {
-  private Long id;
-  private String name;
-  private Float price;
-  private String image;
-  private String description;
-
-  public DishOverview() {
+public class DishOverviewResponse extends ProductBaseResponse implements Serializable {
+  public DishOverviewResponse() {
+    super();
   }
 
-  public DishOverview(Dish dish) {
+  public DishOverviewResponse(Dish dish) {
     copyProperties(dish);
-  }
-
-  public static Dish toDish(DishOverview dishOverview) {
-    Dish dish = new Dish();
-    BeanUtils.copyProperties(dishOverview, dish);
-    return dish;
   }
 
   public void copyProperties(Dish dish) {
     BeanUtils.copyProperties(dish, this);
+    super.setCreateAt(dish.getCreateAt());
+    super.setUpdateAt(dish.getUpdateAt());
   }
 
   @Override

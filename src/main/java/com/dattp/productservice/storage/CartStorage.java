@@ -2,7 +2,7 @@ package com.dattp.productservice.storage;
 
 import com.dattp.productservice.config.redis.RedisKeyConfig;
 import com.dattp.productservice.entity.Dish;
-import com.dattp.productservice.pojo.DishOverview;
+import com.dattp.productservice.base.response.dish.DishOverviewResponse;
 import com.dattp.productservice.service.RedisService;
 import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,17 +35,17 @@ public class CartStorage extends Storage {
     redisService.deleteHash(RedisKeyConfig.genKeyCartDish(jwtService.getUserId()), dishId.toString());
   }
 
-  public List<DishOverview> getListDishInCart(Long userId) {
-    List<DishOverview> dishOverview = new ArrayList<>();
+  public List<DishOverviewResponse> getListDishInCart(Long userId) {
+    List<DishOverviewResponse> dishOverviewResponse = new ArrayList<>();
     List<Long> dishIds = redisService.getHashAll(RedisKeyConfig.genKeyCartDish(userId), Long.class);
     if (dishIds != null && !dishIds.isEmpty()) {
       dishIds.forEach(id -> {
         Dish dish = dishStorage.getDetailFromCacheAndDb(id);
         if (dish != null) {
-          dishOverview.add(new DishOverview(dish));
+          dishOverviewResponse.add(new DishOverviewResponse(dish));
         }
       });
     }
-    return dishOverview;
+    return dishOverviewResponse;
   }
 }

@@ -2,19 +2,19 @@ package com.dattp.productservice.service;
 
 import com.dattp.productservice.config.kafka.KafkaTopicConfig;
 import com.dattp.productservice.config.redis.RedisKeyConfig;
-import com.dattp.productservice.controller.manager.response.TableManagerResponse;
+import com.dattp.productservice.controller.manager.response.TableDetailManagerResponse;
 import com.dattp.productservice.controller.user.dto.CommentTableRequestDTO;
 import com.dattp.productservice.controller.user.dto.TableCreateRequestDTO;
 import com.dattp.productservice.controller.user.dto.TableUpdateRequestDTO;
 import com.dattp.productservice.controller.user.response.CommentTableResponseDTO;
-import com.dattp.productservice.controller.user.response.TableUserResponse;
+import com.dattp.productservice.controller.user.response.TableDetailUserResponse;
 import com.dattp.productservice.entity.CommentTable;
 import com.dattp.productservice.entity.TableE;
 import com.dattp.productservice.entity.User;
 import com.dattp.productservice.entity.state.TableState;
 import com.dattp.productservice.exception.BadRequestException;
 import com.dattp.productservice.pojo.PeriodTime;
-import com.dattp.productservice.controller.user.response.TableOverviewResponse;
+import com.dattp.productservice.base.response.table.TableOverviewResponse;
 import com.dattp.productservice.response.PageSliceResponse;
 import lombok.extern.log4j.Log4j2;
 import org.apache.poi.ss.usermodel.Row;
@@ -71,8 +71,8 @@ public class TableService extends com.dattp.productservice.service.Service {
   }
 
   @Cacheable(value = RedisKeyConfig.PREFIX_TABLE, key = "@redisKeyConfig.genKeyNoType(#id)")
-  public TableUserResponse getDetailUser(Long id) {
-    return new TableUserResponse(
+  public TableDetailUserResponse getDetailUser(Long id) {
+    return new TableDetailUserResponse(
         tableRepository.findById(id)
             .orElseThrow(() -> new BadRequestException(String.format("table(id=%d) not found", id)))
     );
@@ -115,17 +115,17 @@ public class TableService extends com.dattp.productservice.service.Service {
   /*
    * get list table
    * */
-  public PageSliceResponse<TableManagerResponse> findListTableManager(Pageable pageable) {
+  public PageSliceResponse<TableDetailManagerResponse> findListTableManager(Pageable pageable) {
     return PageSliceResponse.createFrom(
-        tableRepository.findAllBy(pageable).map(TableManagerResponse::new)
+        tableRepository.findAllBy(pageable).map(TableDetailManagerResponse::new)
     );
   }
 
   /*
    * get table detail
    * */
-  public TableUserResponse getDetailManager(Long id) {
-    return new TableUserResponse(
+  public TableDetailUserResponse getDetailManager(Long id) {
+    return new TableDetailUserResponse(
         tableRepository.findById(id)
             .orElseThrow(() -> new BadRequestException(String.format("table(id=%d) not found", id)))
     );
@@ -138,11 +138,11 @@ public class TableService extends com.dattp.productservice.service.Service {
       @CacheEvict(value = RedisKeyConfig.PREFIX_DISH, allEntries = true),
   })
   @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
-  public TableUserResponse create(TableCreateRequestDTO tableReq) {
+  public TableDetailUserResponse create(TableCreateRequestDTO tableReq) {
     //save to db
     TableE table = tableRepository.save(new TableE(tableReq));
     //response
-    TableUserResponse resp = new TableUserResponse(table);
+    TableDetailUserResponse resp = new TableDetailUserResponse(table);
     kafkaService.send(KafkaTopicConfig.NEW_TABLE_TOPIC, resp);
     return resp;
   }
@@ -154,14 +154,14 @@ public class TableService extends com.dattp.productservice.service.Service {
       @CacheEvict(value = RedisKeyConfig.PREFIX_DISH, allEntries = true),
   })
   @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
-  public TableUserResponse update(TableUpdateRequestDTO dto) {
+  public TableDetailUserResponse update(TableUpdateRequestDTO dto) {
     TableE table = tableRepository.findById(dto.getId())
         .orElseThrow(() -> new BadRequestException(String.format("table(id=%d) not found", dto.getId())));
     table.copyProperties(dto);
     //save to db
     table = tableRepository.save(table);
     //response
-    TableUserResponse resp = new TableUserResponse(table);
+    TableDetailUserResponse resp = new TableDetailUserResponse(table);
     kafkaService.send(KafkaTopicConfig.UPDATE_TABLE_TOPIC, resp);
     return resp;
   }
@@ -175,7 +175,7 @@ public class TableService extends com.dattp.productservice.service.Service {
     //notification
     tables.forEach(t -> {
           //send kafka
-          kafkaService.send(KafkaTopicConfig.NEW_TABLE_TOPIC, new TableUserResponse(t));
+          kafkaService.send(KafkaTopicConfig.NEW_TABLE_TOPIC, new TableDetailUserResponse(t));
         }
     );
     return true;

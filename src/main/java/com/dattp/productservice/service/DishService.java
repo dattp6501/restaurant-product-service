@@ -2,18 +2,18 @@ package com.dattp.productservice.service;
 
 import com.dattp.productservice.config.kafka.KafkaTopicConfig;
 import com.dattp.productservice.config.redis.RedisKeyConfig;
-import com.dattp.productservice.controller.manager.response.DishManageResponse;
+import com.dattp.productservice.controller.manager.response.DishDetailManageResponse;
 import com.dattp.productservice.controller.user.dto.CommentDishRequestDTO;
 import com.dattp.productservice.controller.user.dto.DishCreateRequestDTO;
 import com.dattp.productservice.controller.user.dto.DishUpdateRequestDTO;
-import com.dattp.productservice.controller.user.response.CommentDishResponseDTO;
-import com.dattp.productservice.controller.user.response.DishUserResponse;
+import com.dattp.productservice.controller.user.response.CommentDishResponse;
+import com.dattp.productservice.controller.user.response.DishDetailUserResponseResponse;
 import com.dattp.productservice.entity.CommentDish;
 import com.dattp.productservice.entity.Dish;
 import com.dattp.productservice.entity.User;
 import com.dattp.productservice.entity.state.DishState;
 import com.dattp.productservice.exception.BadRequestException;
-import com.dattp.productservice.pojo.DishOverview;
+import com.dattp.productservice.base.response.dish.DishOverviewResponse;
 import com.dattp.productservice.response.PageSliceResponse;
 import lombok.extern.log4j.Log4j2;
 import org.apache.poi.ss.usermodel.Row;
@@ -53,15 +53,15 @@ public class DishService extends com.dattp.productservice.service.Service {
    * get list dish
    * */
   @Cacheable(value = RedisKeyConfig.PREFIX_DISH, key = "@redisKeyConfig.genKeyPage(#pageable)")
-  public PageSliceResponse<DishOverview> findPageDish(Pageable pageable) {
+  public PageSliceResponse<DishOverviewResponse> findPageDish(Pageable pageable) {
     Slice<Dish> dishs = dishRepository.findDishesByStateIn(List.of(DishState.ACTIVE), pageable);
-    return PageSliceResponse.createFrom(dishs.map(DishOverview::new));
+    return PageSliceResponse.createFrom(dishs.map(DishOverviewResponse::new));
   }
 
   @Cacheable(value = RedisKeyConfig.PREFIX_DISH, key = "@redisKeyConfig.genKeyNoType('hot')")
-  public List<DishOverview> getListDishHot(Pageable pageable) {
+  public List<DishOverviewResponse> getListDishHot(Pageable pageable) {
     Slice<Dish> dishs = dishRepository.findDishesByStateIn(List.of(DishState.ACTIVE), pageable);
-    List<DishOverview> response = dishs.stream().map(DishOverview::new).toList();
+    List<DishOverviewResponse> response = dishs.stream().map(DishOverviewResponse::new).toList();
     if (response.size() > 10) return response.subList(0, 10);
     return response;
   }
@@ -70,8 +70,8 @@ public class DishService extends com.dattp.productservice.service.Service {
    * get detail dish
    * */
   @Cacheable(value = RedisKeyConfig.PREFIX_DISH, key = "@redisKeyConfig.genKeyNoType(#id)")
-  public DishUserResponse getDetail(Long id) {
-    return new DishUserResponse(
+  public DishDetailUserResponseResponse getDetail(Long id) {
+    return new DishDetailUserResponseResponse(
         dishRepository.findById(id).orElseThrow(() ->
             new BadRequestException(String.format("dish(id=%d) not found", id)))
     );
@@ -101,9 +101,9 @@ public class DishService extends com.dattp.productservice.service.Service {
    * get list comment
    * */
   @Cacheable(value = RedisKeyConfig.PREFIX_DISH_COMMENT, key = "@redisKeyConfig.genKeyPage(#dishId,#pageable)")
-  public List<CommentDishResponseDTO> getListComment(Long dishId, Pageable pageable) {
+  public List<CommentDishResponse> getListComment(Long dishId, Pageable pageable) {
     return commentDishRepository.findCommentDishesByDish_Id(dishId, pageable)
-        .stream().map(CommentDishResponseDTO::new)
+        .stream().map(CommentDishResponse::new)
         .collect(Collectors.toList());
   }
 
@@ -111,14 +111,14 @@ public class DishService extends com.dattp.productservice.service.Service {
   //===============================================================================
   //==============================    MANAGER   ===================================
   //=============================================================================
-  public List<DishManageResponse> getListDishManager(Pageable pageable) {
+  public List<DishDetailManageResponse> getListDishManager(Pageable pageable) {
     return dishRepository.findAll(pageable).stream()
-        .map(DishManageResponse::new)
+        .map(DishDetailManageResponse::new)
         .collect(Collectors.toList());
   }
 
-  public DishUserResponse getDetailFromDB(Long id) {
-    return new DishUserResponse(dishStorage.getDetailDishFromDB(id));
+  public DishDetailUserResponseResponse getDetailFromDB(Long id) {
+    return new DishDetailUserResponseResponse(dishStorage.getDetailDishFromDB(id));
   }
 
   /*
@@ -128,11 +128,11 @@ public class DishService extends com.dattp.productservice.service.Service {
       @CacheEvict(value = RedisKeyConfig.PREFIX_DISH, allEntries = true),
   })
   @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
-  public DishUserResponse create(DishCreateRequestDTO dishReq) {
+  public DishDetailUserResponseResponse create(DishCreateRequestDTO dishReq) {
     //save db
     Dish dish = dishRepository.save(new Dish(dishReq));
     //response
-    DishUserResponse resp = new DishUserResponse(dish);
+    DishDetailUserResponseResponse resp = new DishDetailUserResponseResponse(dish);
     kafkaService.send(KafkaTopicConfig.NEW_DISH_TOPIC, resp);
     return resp;
   }
@@ -141,14 +141,14 @@ public class DishService extends com.dattp.productservice.service.Service {
       @CacheEvict(value = RedisKeyConfig.PREFIX_DISH, allEntries = true),
   })
   @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
-  public DishUserResponse update(DishUpdateRequestDTO dto) {
+  public DishDetailUserResponseResponse update(DishUpdateRequestDTO dto) {
     Dish dish = dishRepository.findById(dto.getId())
         .orElseThrow(() -> new BadRequestException(String.format("dish(id=%d) not found", dto.getId())));
     dish.copyProperties(dto);
     //save db
     dish = dishRepository.save(dish);
     //resp
-    DishUserResponse resp = new DishUserResponse(dish);
+    DishDetailUserResponseResponse resp = new DishDetailUserResponseResponse(dish);
     kafkaService.send(KafkaTopicConfig.UPDATE_DISH_TOPIC, resp);
     return resp;
   }
@@ -164,7 +164,7 @@ public class DishService extends com.dattp.productservice.service.Service {
     listDish = self.saveListDish(listDish);
     listDish.forEach(dish -> {
       //send kafka
-      kafkaService.send(KafkaTopicConfig.NEW_TABLE_TOPIC, new DishUserResponse(dish));
+      kafkaService.send(KafkaTopicConfig.NEW_TABLE_TOPIC, new DishDetailUserResponseResponse(dish));
     });
     return true;
   }

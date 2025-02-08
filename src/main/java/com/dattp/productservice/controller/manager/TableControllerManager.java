@@ -4,7 +4,7 @@ import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
 import com.dattp.productservice.base.ErrorMessage;
 import com.dattp.productservice.base.response.BaseResponse;
 import com.dattp.productservice.controller.Controller;
-import com.dattp.productservice.controller.manager.response.TableManagerResponse;
+import com.dattp.productservice.controller.manager.response.TableDetailManagerResponse;
 import com.dattp.productservice.controller.user.dto.TableCreateRequestDTO;
 import com.dattp.productservice.controller.user.dto.TableUpdateRequestDTO;
 import com.dattp.productservice.entity.myenum.SysAction;
@@ -31,7 +31,7 @@ public class TableControllerManager extends Controller {
   @RolesAllowed({
       SysAction.ROLE_ADMIN, SysAction.ROLE_PRODUCT_UPDATE, SysAction.ROLE_PRODUCT_DELETE
   })
-  public ResponseEntity<PageSliceResponse<TableManagerResponse>> findListTable(Pageable pageable) {
+  public ResponseEntity<PageSliceResponse<TableDetailManagerResponse>> findListTable(Pageable pageable) {
     return ResponseEntity.ok(
         tableService.findListTableManager(pageable)
     );

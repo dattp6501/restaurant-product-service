@@ -1,4 +1,4 @@
-package com.dattp.productservice.controller.user.response;
+package com.dattp.productservice.base.response.table;
 
 import com.dattp.productservice.base.response.ProductBaseResponse;
 import com.dattp.productservice.entity.TableE;

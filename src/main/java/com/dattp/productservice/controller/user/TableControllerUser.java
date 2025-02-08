@@ -6,7 +6,7 @@ import com.dattp.productservice.base.response.BaseResponse;
 import com.dattp.productservice.controller.Controller;
 import com.dattp.productservice.controller.user.dto.CommentTableRequestDTO;
 import com.dattp.productservice.entity.myenum.SysAction;
-import com.dattp.productservice.controller.user.response.TableOverviewResponse;
+import com.dattp.productservice.base.response.table.TableOverviewResponse;
 import com.dattp.productservice.response.PageSliceResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;

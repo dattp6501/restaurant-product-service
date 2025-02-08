@@ -1,6 +1,5 @@
 package com.dattp.productservice.base.response.table;
 
-import com.dattp.productservice.base.response.ProductBaseResponse;
 import com.dattp.productservice.controller.user.response.CommentTableResponseDTO;
 import com.dattp.productservice.entity.TableE;
 import com.dattp.productservice.entity.state.TableState;
@@ -14,7 +13,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class TableBaseResponse extends ProductBaseResponse {
+public class TableDetailBaseResponse extends TableOverviewResponse {
   private TableState state;
 
   private Integer amountOfPeople;
@@ -27,16 +26,18 @@ public class TableBaseResponse extends ProductBaseResponse {
 
   private List<CommentTableResponseDTO> comments;
 
-  public TableBaseResponse() {
+  public TableDetailBaseResponse() {
     super();
   }
 
-  public TableBaseResponse(TableE table) {
+  public TableDetailBaseResponse(TableE table) {
     copyProperties(table);
   }
 
+  @Override
   public void copyProperties(TableE table) {
     BeanUtils.copyProperties(table, this);
+    super.copyProperties(table);
     super.setCreateAt(table.getCreateAt());
     super.setUpdateAt(table.getUpdateAt());
   }

@@ -1,7 +1,7 @@
 package com.dattp.productservice.service;
 
 import com.dattp.productservice.controller.user.dto.DishInCartRequestDTO;
-import com.dattp.productservice.pojo.DishOverview;
+import com.dattp.productservice.base.response.dish.DishOverviewResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +18,7 @@ public class CartService extends com.dattp.productservice.service.Service {
     cartStorage.deleteDishInFromCart(dishId);
   }
 
-  public List<DishOverview> getListDish() {
+  public List<DishOverviewResponse> getListDish() {
     return cartStorage.getListDishInCart(jwtService.getUserId());
   }
 }

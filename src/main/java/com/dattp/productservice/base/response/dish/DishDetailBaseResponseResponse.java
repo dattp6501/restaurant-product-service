@@ -1,7 +1,6 @@
 package com.dattp.productservice.base.response.dish;
 
-import com.dattp.productservice.base.response.ProductBaseResponse;
-import com.dattp.productservice.controller.user.response.CommentDishResponseDTO;
+import com.dattp.productservice.controller.user.response.CommentDishResponse;
 import com.dattp.productservice.entity.Dish;
 import com.dattp.productservice.entity.state.DishState;
 import lombok.Getter;
@@ -12,20 +11,22 @@ import java.util.List;
 
 @Setter
 @Getter
-public class DishBaseResponse extends ProductBaseResponse {
+public class DishDetailBaseResponseResponse extends DishOverviewResponse {
   private DishState state;
 
-  private List<CommentDishResponseDTO> comments;
+  private List<CommentDishResponse> comments;
 
-  public DishBaseResponse() {
+  public DishDetailBaseResponseResponse() {
     super();
   }
 
-  public DishBaseResponse(Dish dish) {
+  public DishDetailBaseResponseResponse(Dish dish) {
     copyProperties(dish);
   }
 
+  @Override
   public void copyProperties(Dish dish) {
+    super.copyProperties(dish);
     BeanUtils.copyProperties(dish, this);
     super.setCreateAt(dish.getCreateAt());
     super.setUpdateAt(dish.getUpdateAt());

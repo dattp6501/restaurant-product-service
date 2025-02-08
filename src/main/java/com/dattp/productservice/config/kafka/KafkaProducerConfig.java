@@ -1,8 +1,8 @@
 package com.dattp.productservice.config.kafka;
 
-import com.dattp.productservice.controller.user.response.DishUserResponse;
+import com.dattp.productservice.controller.user.response.DishDetailUserResponseResponse;
 import com.dattp.productservice.kafkalisteners.dto.booking.BookingResponseDTO;
-import com.dattp.productservice.controller.user.response.TableUserResponse;
+import com.dattp.productservice.controller.user.response.TableDetailUserResponse;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,23 +71,23 @@ public class KafkaProducerConfig {
 
   //dish
   @Bean
-  public ProducerFactory<String, DishUserResponse> producerFactoryDish() {
+  public ProducerFactory<String, DishDetailUserResponseResponse> producerFactoryDish() {
     return new DefaultKafkaProducerFactory<>(producerConfig());
   }
 
   @Bean
-  public KafkaTemplate<String, DishUserResponse> kafkaTemplateDish(ProducerFactory<String, DishUserResponse> producerFactory) {
+  public KafkaTemplate<String, DishDetailUserResponseResponse> kafkaTemplateDish(ProducerFactory<String, DishDetailUserResponseResponse> producerFactory) {
     return new KafkaTemplate<>(producerFactory);
   }
 
   //table
   @Bean
-  public ProducerFactory<String, TableUserResponse> producerFactoryTable() {
+  public ProducerFactory<String, TableDetailUserResponse> producerFactoryTable() {
     return new DefaultKafkaProducerFactory<>(producerConfig());
   }
 
   @Bean
-  public KafkaTemplate<String, TableUserResponse> kafkaTemplateTable(ProducerFactory<String, TableUserResponse> producerFactory) {
+  public KafkaTemplate<String, TableDetailUserResponse> kafkaTemplateTable(ProducerFactory<String, TableDetailUserResponse> producerFactory) {
     return new KafkaTemplate<>(producerFactory);
   }
 }

@@ -6,7 +6,7 @@ import com.dattp.productservice.base.response.BaseResponse;
 import com.dattp.productservice.controller.Controller;
 import com.dattp.productservice.controller.user.dto.CommentDishRequestDTO;
 import com.dattp.productservice.entity.myenum.SysAction;
-import com.dattp.productservice.pojo.DishOverview;
+import com.dattp.productservice.base.response.dish.DishOverviewResponse;
 import com.dattp.productservice.response.PageSliceResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -21,7 +21,7 @@ import javax.validation.Valid;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class DishControllerUser extends Controller {
   @GetMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE})
-  public ResponseEntity<PageSliceResponse<DishOverview>> findPageDish(Pageable pageable) {//page=?&size=?
+  public ResponseEntity<PageSliceResponse<DishOverviewResponse>> findPageDish(Pageable pageable) {//page=?&size=?
     return ResponseEntity.ok(
         dishService.findPageDish(pageable)
     );
