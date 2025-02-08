@@ -38,7 +38,7 @@ public class Dish implements Serializable {
   @Column(name = "image")
   private String image;
 
-  @Column(name = "description")
+  @Column(name = "description", columnDefinition = "text")
   private String description;
 
   @Column(name = "create_at")

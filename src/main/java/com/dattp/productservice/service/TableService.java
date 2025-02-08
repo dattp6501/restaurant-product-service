@@ -2,65 +2,108 @@ package com.dattp.productservice.service;
 
 import com.dattp.productservice.config.kafka.KafkaTopicConfig;
 import com.dattp.productservice.config.redis.RedisKeyConfig;
-import com.dattp.productservice.controller.user.response.CommentTableResponseDTO;
+import com.dattp.productservice.controller.manager.response.TableManagerResponse;
+import com.dattp.productservice.controller.user.dto.CommentTableRequestDTO;
 import com.dattp.productservice.controller.user.dto.TableCreateRequestDTO;
-import com.dattp.productservice.controller.user.response.TableResponseDTO;
 import com.dattp.productservice.controller.user.dto.TableUpdateRequestDTO;
+import com.dattp.productservice.controller.user.response.CommentTableResponseDTO;
+import com.dattp.productservice.controller.user.response.TableUserResponse;
 import com.dattp.productservice.entity.CommentTable;
 import com.dattp.productservice.entity.TableE;
 import com.dattp.productservice.entity.User;
 import com.dattp.productservice.entity.state.TableState;
 import com.dattp.productservice.exception.BadRequestException;
-import com.dattp.productservice.pojo.TableOverview;
+import com.dattp.productservice.pojo.PeriodTime;
+import com.dattp.productservice.controller.user.response.TableOverviewResponse;
+import com.dattp.productservice.response.PageSliceResponse;
 import lombok.extern.log4j.Log4j2;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 
 @Service
 @Log4j2
 public class TableService extends com.dattp.productservice.service.Service {
+  @Autowired
+  @Lazy
+  private TableService self;
+
   //================================================================================
   //=================================   USER   =====================================
   //================================================================================
   /*
    * get list table
    * */
-  public List<TableOverview> getTableOverview(Pageable pageable) {
-    return tableStorage.findListFromCacheAndDB(pageable);
+  @Cacheable(value = RedisKeyConfig.PREFIX_TABLE, key = "@redisKeyConfig.genKeyPage(#pageable)")
+  public PageSliceResponse<TableOverviewResponse> getTableOverview(Pageable pageable) {
+    Slice<TableOverviewResponse> tableS = tableRepository.findAllByStateIn(List.of(TableState.ACTIVE), pageable)
+        .map(TableOverviewResponse::new);
+    //get free time
+    tableS.forEach(t -> {
+      String keyFree = RedisKeyConfig.genKeyTableFreeTime(t.getId());
+      List<PeriodTime> tableFreeTime = redisService.getList(keyFree, PeriodTime.class);
+      if (Objects.nonNull(tableFreeTime)) t.setFreeTime(tableFreeTime);
+    });
+    return PageSliceResponse.createFrom(
+        tableS
+    );
   }
 
-  public TableResponseDTO getDetailFromCache(Long id) {
-    return new TableResponseDTO(tableStorage.getDetailFromCacheAndDB(id));
+  @Cacheable(value = RedisKeyConfig.PREFIX_TABLE, key = "@redisKeyConfig.genKeyNoType(#id)")
+  public TableUserResponse getDetailUser(Long id) {
+    return new TableUserResponse(
+        tableRepository.findById(id)
+            .orElseThrow(() -> new BadRequestException(String.format("table(id=%d) not found", id)))
+    );
   }
 
   /*
    * add comment
    * */
-  public boolean addComment(CommentTable comment) {
+  @Caching(evict = {
+      @CacheEvict(value = RedisKeyConfig.PREFIX_TABLE_COMMENT, allEntries = true),
+  })
+  @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
+  public void addComment(CommentTableRequestDTO CTR) {
+    CommentTable comment = new CommentTable(CTR);
     comment.setUser(new User(jwtService.getUserId(), jwtService.getUsername()));
     //save to db
-    tableStorage.addCommentTable(comment);
-    //cache
-    String key = RedisKeyConfig.genKeyCommentTable(comment.getTable().getId());
-    if (!redisService.hasKey(key)) tableStorage.initCommentTableCache(comment.getTable().getId());
-    redisService.addElemntHash(key, comment.getUser().getId().toString(), comment, RedisService.CacheTime.ONE_WEEK);
-    return true;
+    if (commentTableRepository.findByTableIdAndUserId(CTR.getTableId(), comment.getUser().getId()) != null)
+      commentTableRepository.update(
+          comment.getStar(), comment.getComment(), CTR.getTableId(), comment.getUser().getId(),
+          comment.getDate()
+      );
+    else
+      commentTableRepository.save(
+          comment.getStar(), comment.getComment(), CTR.getTableId(), comment.getUser().getId(),
+          comment.getUser().getUsername(), comment.getDate()
+      );
   }
 
+  @Cacheable(value = RedisKeyConfig.PREFIX_TABLE_COMMENT, key = "@redisKeyConfig.genKeyPage(#tableId,#pageable)")
   public List<CommentTableResponseDTO> getListCommentTable(Long tableId, Pageable pageable) {
-    return tableStorage.getListCommentTableFromCacheAndDB(tableId, pageable)
+    return commentTableRepository.findCommentTablesByTableId(tableId, pageable).toList()
         .stream().map(CommentTableResponseDTO::new)
         .collect(Collectors.toList());
   }
@@ -72,27 +115,34 @@ public class TableService extends com.dattp.productservice.service.Service {
   /*
    * get list table
    * */
-  public List<TableResponseDTO> getAllFromDB(Pageable pageable) {
-    return tableStorage.findAll(pageable)
-        .stream().map(TableResponseDTO::new)
-        .collect(Collectors.toList());
+  public PageSliceResponse<TableManagerResponse> findListTableManager(Pageable pageable) {
+    return PageSliceResponse.createFrom(
+        tableRepository.findAllBy(pageable).map(TableManagerResponse::new)
+    );
   }
 
   /*
    * get table detail
    * */
-  public TableResponseDTO getDetailDB(Long id) {
-    return new TableResponseDTO(tableStorage.getDetailFromDB(id));
+  public TableUserResponse getDetailManager(Long id) {
+    return new TableUserResponse(
+        tableRepository.findById(id)
+            .orElseThrow(() -> new BadRequestException(String.format("table(id=%d) not found", id)))
+    );
   }
 
   /*
    * create table
    * */
-  public TableResponseDTO create(TableCreateRequestDTO tableReq) {
+  @Caching(evict = {
+      @CacheEvict(value = RedisKeyConfig.PREFIX_DISH, allEntries = true),
+  })
+  @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
+  public TableUserResponse create(TableCreateRequestDTO tableReq) {
     //save to db
-    TableE table = tableStorage.saveToDB(new TableE(tableReq));
+    TableE table = tableRepository.save(new TableE(tableReq));
     //response
-    TableResponseDTO resp = new TableResponseDTO(table);
+    TableUserResponse resp = new TableUserResponse(table);
     kafkaService.send(KafkaTopicConfig.NEW_TABLE_TOPIC, resp);
     return resp;
   }
@@ -100,13 +150,18 @@ public class TableService extends com.dattp.productservice.service.Service {
   /*
    * update table
    * */
-  public TableResponseDTO update(TableUpdateRequestDTO dto) {
-    TableE table = tableStorage.getDetailFromDB(dto.getId());
+  @Caching(evict = {
+      @CacheEvict(value = RedisKeyConfig.PREFIX_DISH, allEntries = true),
+  })
+  @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
+  public TableUserResponse update(TableUpdateRequestDTO dto) {
+    TableE table = tableRepository.findById(dto.getId())
+        .orElseThrow(() -> new BadRequestException(String.format("table(id=%d) not found", dto.getId())));
     table.copyProperties(dto);
     //save to db
-    table = tableStorage.saveToDB(table);
+    table = tableRepository.save(table);
     //response
-    TableResponseDTO resp = new TableResponseDTO(table);
+    TableUserResponse resp = new TableUserResponse(table);
     kafkaService.send(KafkaTopicConfig.UPDATE_TABLE_TOPIC, resp);
     return resp;
   }
@@ -116,14 +171,19 @@ public class TableService extends com.dattp.productservice.service.Service {
    * */
   public Boolean createByExcel(InputStream inputStream) throws IOException {
     List<TableE> tables = readXlsxTable(inputStream);
-    tables = tableStorage.saveAllToDB(tables);
+    tables = self.saveListTable(tables);
     //notification
     tables.forEach(t -> {
           //send kafka
-          kafkaService.send(KafkaTopicConfig.NEW_TABLE_TOPIC, new TableResponseDTO(t));
+          kafkaService.send(KafkaTopicConfig.NEW_TABLE_TOPIC, new TableUserResponse(t));
         }
     );
     return true;
+  }
+
+  @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRED)
+  public List<TableE> saveListTable(List<TableE> list) {
+    return tableRepository.saveAll(list);
   }
 
   public List<TableE> readXlsxTable(InputStream inputStream) throws IOException {

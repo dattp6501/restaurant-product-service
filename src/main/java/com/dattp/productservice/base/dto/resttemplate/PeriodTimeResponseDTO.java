@@ -1,4 +1,4 @@
-package com.dattp.productservice.dto.resttemplate;
+package com.dattp.productservice.base.dto.resttemplate;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;

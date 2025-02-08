@@ -1,7 +1,7 @@
 package com.dattp.productservice.storage;
 
 import com.dattp.productservice.config.redis.RedisKeyConfig;
-import com.dattp.productservice.dto.auth.AuthResponseDTO;
+import com.dattp.productservice.base.dto.auth.AuthResponseDTO;
 import com.dattp.productservice.exception.BadRequestException;
 import org.springframework.stereotype.Component;
 

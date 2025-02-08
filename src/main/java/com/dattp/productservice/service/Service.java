@@ -34,6 +34,19 @@ public class Service {
 
   @Autowired
   @Lazy
+  protected DishRepository dishRepository;
+  @Autowired
+  @Lazy
+  protected CommentDishRepository commentDishRepository;
+  @Autowired
+  @Lazy
+  protected TableRepository tableRepository;
+  @Autowired
+  @Lazy
+  protected CommentTableRepository commentTableRepository;
+
+  @Autowired
+  @Lazy
   protected DishStorage dishStorage;
   @Autowired
   @Lazy
@@ -52,13 +65,4 @@ public class Service {
   @Autowired
   @Lazy
   protected CommentDishRepository CommentDishRepository;
-  @Autowired
-  @Lazy
-  protected TableRepository tableRepository;
-  @Autowired
-  @Lazy
-  protected CommentTableRepository commentTableRepository;
-
-  @Autowired
-  protected DishRepository dishRepository;
 }

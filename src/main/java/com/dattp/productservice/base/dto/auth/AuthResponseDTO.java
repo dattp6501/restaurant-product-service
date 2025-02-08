@@ -1,4 +1,4 @@
-package com.dattp.productservice.dto.auth;
+package com.dattp.productservice.base.dto.auth;
 
 import lombok.Getter;
 import lombok.Setter;

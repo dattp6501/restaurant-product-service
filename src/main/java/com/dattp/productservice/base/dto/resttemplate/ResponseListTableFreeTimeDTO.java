@@ -1,4 +1,4 @@
-package com.dattp.productservice.dto.resttemplate;
+package com.dattp.productservice.base.dto.resttemplate;
 
 import lombok.Getter;
 import lombok.Setter;

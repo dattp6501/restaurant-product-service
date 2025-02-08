@@ -1,8 +1,8 @@
 package com.dattp.productservice.service;
 
-import com.dattp.productservice.controller.user.response.DishResponseDTO;
+import com.dattp.productservice.controller.user.response.DishUserResponse;
 import com.dattp.productservice.kafkalisteners.dto.booking.BookingResponseDTO;
-import com.dattp.productservice.controller.user.response.TableResponseDTO;
+import com.dattp.productservice.controller.user.response.TableUserResponse;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -15,10 +15,10 @@ import org.springframework.stereotype.Service;
 public class KafkaService {
   @Autowired
   @Lazy
-  private KafkaTemplate<String, DishResponseDTO> kafkaTemplateDish;
+  private KafkaTemplate<String, DishUserResponse> kafkaTemplateDish;
   @Autowired
   @Lazy
-  private KafkaTemplate<String, TableResponseDTO> kafkaTemplateTable;
+  private KafkaTemplate<String, TableUserResponse> kafkaTemplateTable;
   @Autowired
   @Lazy
   private KafkaTemplate<String, BookingResponseDTO> kafkaTemplateBooking;
@@ -26,10 +26,10 @@ public class KafkaService {
   @Async("taskExecutor")
   public void send(String topic, Object data) {
     try {
-      if (data instanceof DishResponseDTO)
-        kafkaTemplateDish.send(topic, ((DishResponseDTO) data).getId().toString(), (DishResponseDTO) data);
-      else if (data instanceof TableResponseDTO)
-        kafkaTemplateTable.send(topic, ((TableResponseDTO) data).getId().toString(), (TableResponseDTO) data);
+      if (data instanceof DishUserResponse)
+        kafkaTemplateDish.send(topic, ((DishUserResponse) data).getId().toString(), (DishUserResponse) data);
+      else if (data instanceof TableUserResponse)
+        kafkaTemplateTable.send(topic, ((TableUserResponse) data).getId().toString(), (TableUserResponse) data);
       else if (data instanceof BookingResponseDTO)
         kafkaTemplateBooking.send(topic, ((BookingResponseDTO) data).getId().toString(), (BookingResponseDTO) data);
 

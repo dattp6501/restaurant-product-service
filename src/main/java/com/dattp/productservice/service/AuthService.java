@@ -1,7 +1,5 @@
 package com.dattp.productservice.service;
 
-import com.dattp.productservice.dto.auth.AuthResponseDTO;
-import com.dattp.productservice.exception.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;

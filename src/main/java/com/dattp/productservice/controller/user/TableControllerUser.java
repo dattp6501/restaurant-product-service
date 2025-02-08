@@ -1,12 +1,14 @@
 package com.dattp.productservice.controller.user;
 
 import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
+import com.dattp.productservice.base.ErrorMessage;
+import com.dattp.productservice.base.response.BaseResponse;
 import com.dattp.productservice.controller.Controller;
-import com.dattp.productservice.dto.ResponseDTO;
 import com.dattp.productservice.controller.user.dto.CommentTableRequestDTO;
-import com.dattp.productservice.entity.CommentTable;
+import com.dattp.productservice.entity.myenum.SysAction;
+import com.dattp.productservice.controller.user.response.TableOverviewResponse;
+import com.dattp.productservice.response.PageSliceResponse;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,25 +22,21 @@ import javax.validation.Valid;
 public class TableControllerUser extends Controller {
   @GetMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE})
 //    @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
-  public ResponseEntity<ResponseDTO> getAllTable(Pageable pageable) {
+  public ResponseEntity<PageSliceResponse<TableOverviewResponse>> getAllTable(Pageable pageable) {
     return ResponseEntity.ok(
-        new ResponseDTO(
-            HttpStatus.OK.value(),
-            "Thành công",
-            tableService.getTableOverview(pageable)
-        )
+        tableService.getTableOverview(pageable)
     );
   }
 
   @GetMapping(value = "/{table_id}", produces = {MediaType.APPLICATION_JSON_VALUE})
 //    @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
-  public ResponseEntity<ResponseDTO> getTableDetail(@PathVariable("table_id") Long id) {
+  public ResponseEntity<BaseResponse> getTableDetail(@PathVariable("table_id") Long id) {
     return ResponseEntity.ok(
-        new ResponseDTO(
-            HttpStatus.OK.value(),
-            "Thành công",
-            tableService.getDetailFromCache(id)
-        )
+        BaseResponse.builder()
+            .code(ErrorMessage.SUCCESS.getStatus().value())
+            .message(ErrorMessage.SUCCESS.getMessage())
+            .data(tableService.getDetailUser(id))
+            .build()
     );
   }
 
@@ -61,26 +59,26 @@ public class TableControllerUser extends Controller {
 
   @PostMapping(value = "/comment", produces = {MediaType.APPLICATION_JSON_VALUE})
   @AddAuthorizedDocAPI
-  @RolesAllowed({"ROLE_PRODUCT_ACCESS"})
-  public ResponseEntity<ResponseDTO> addComment(@RequestBody @Valid CommentTableRequestDTO CTR) throws Exception {
-    if (!tableService.addComment(new CommentTable(CTR))) throw new Exception("Không đánh giá được sản phẩm");
-    return ResponseEntity.ok().body(
-        new ResponseDTO(
-            HttpStatus.OK.value(),
-            "Thành công",
-            null
-        )
+  @RolesAllowed({SysAction.ROLE_PRODUCT_ACCESS})
+  public ResponseEntity<BaseResponse> addComment(@RequestBody @Valid CommentTableRequestDTO CTR) throws Exception {
+    tableService.addComment(CTR);
+    return ResponseEntity.ok(
+        BaseResponse.builder()
+            .code(ErrorMessage.SUCCESS.getStatus().value())
+            .message(ErrorMessage.SUCCESS.getMessage())
+            .data(null)
+            .build()
     );
   }
 
   @GetMapping(value = "/{tableId}/comment", produces = {MediaType.APPLICATION_JSON_VALUE})
-  public ResponseEntity<ResponseDTO> addComment(@PathVariable("tableId") Long tableId, Pageable pageable) {
-    return ResponseEntity.ok().body(
-        new ResponseDTO(
-            HttpStatus.OK.value(),
-            "Thành công",
-            tableService.getListCommentTable(tableId, pageable)
-        )
+  public ResponseEntity<BaseResponse> addComment(@PathVariable("tableId") Long tableId, Pageable pageable) {
+    return ResponseEntity.ok(
+        BaseResponse.builder()
+            .code(ErrorMessage.SUCCESS.getStatus().value())
+            .message(ErrorMessage.SUCCESS.getMessage())
+            .data(tableService.getListCommentTable(tableId, pageable))
+            .build()
     );
   }
 }

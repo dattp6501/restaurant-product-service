@@ -1,12 +1,15 @@
 package com.dattp.productservice.controller.manager;
 
 import com.dattp.productservice.anotation.docapi.AddAuthorizedDocAPI;
+import com.dattp.productservice.base.ErrorMessage;
+import com.dattp.productservice.base.response.BaseResponse;
 import com.dattp.productservice.controller.Controller;
-import com.dattp.productservice.dto.ResponseDTO;
+import com.dattp.productservice.controller.manager.response.TableManagerResponse;
 import com.dattp.productservice.controller.user.dto.TableCreateRequestDTO;
 import com.dattp.productservice.controller.user.dto.TableUpdateRequestDTO;
+import com.dattp.productservice.entity.myenum.SysAction;
+import com.dattp.productservice.response.PageSliceResponse;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,14 +28,12 @@ public class TableControllerManager extends Controller {
    * */
   @GetMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE})
   @AddAuthorizedDocAPI
-  @RolesAllowed({"ROLE_ADMIN", "ROLE_PRODUCT_UPDATE", "ROLE_PRODUCT_DELETE"})
-  public ResponseEntity<ResponseDTO> getAllTable(Pageable pageable) {
-    return ResponseEntity.ok().body(
-        new ResponseDTO(
-            HttpStatus.OK.value(),
-            "Thành công",
-            tableService.getAllFromDB(pageable)
-        )
+  @RolesAllowed({
+      SysAction.ROLE_ADMIN, SysAction.ROLE_PRODUCT_UPDATE, SysAction.ROLE_PRODUCT_DELETE
+  })
+  public ResponseEntity<PageSliceResponse<TableManagerResponse>> findListTable(Pageable pageable) {
+    return ResponseEntity.ok(
+        tableService.findListTableManager(pageable)
     );
   }
 
@@ -41,14 +42,16 @@ public class TableControllerManager extends Controller {
    * */
   @GetMapping(value = "/{table_id}", produces = {MediaType.APPLICATION_JSON_VALUE})
   @AddAuthorizedDocAPI
-  @RolesAllowed({"ROLE_ADMIN", "ROLE_PRODUCT_UPDATE", "ROLE_PRODUCT_DELETE"})
-  public ResponseEntity<ResponseDTO> getTableDetail(@PathVariable("table_id") Long id) {
-    return ResponseEntity.ok().body(
-        new ResponseDTO(
-            HttpStatus.OK.value(),
-            "Thành công",
-            tableService.getDetailDB(id)
-        )
+  @RolesAllowed({
+      SysAction.ROLE_ADMIN, SysAction.ROLE_PRODUCT_UPDATE, SysAction.ROLE_PRODUCT_DELETE
+  })
+  public ResponseEntity<BaseResponse> getTableDetail(@PathVariable("table_id") Long id) {
+    return ResponseEntity.ok(
+        BaseResponse.builder()
+            .code(ErrorMessage.SUCCESS.getStatus().value())
+            .message(ErrorMessage.SUCCESS.getMessage())
+            .data(tableService.getDetailManager(id))
+            .build()
     );
   }
 
@@ -57,14 +60,14 @@ public class TableControllerManager extends Controller {
    * */
   @PostMapping(value = "/save", produces = {MediaType.APPLICATION_JSON_VALUE})
   @AddAuthorizedDocAPI
-  @RolesAllowed({"ROLE_ADMIN", "ROLE_PRODUCT_NEW"})
-  public ResponseEntity<ResponseDTO> create(@RequestBody @Valid TableCreateRequestDTO tableReq) {
-    return ResponseEntity.ok().body(
-        new ResponseDTO(
-            HttpStatus.OK.value(),
-            "Thành công",
-            tableService.create(tableReq)
-        )
+  @RolesAllowed({SysAction.ROLE_ADMIN, SysAction.ROLE_PRODUCT_NEW})
+  public ResponseEntity<BaseResponse> create(@RequestBody @Valid TableCreateRequestDTO tableReq) {
+    return ResponseEntity.ok(
+        BaseResponse.builder()
+            .code(ErrorMessage.SUCCESS.getStatus().value())
+            .message(ErrorMessage.SUCCESS.getMessage())
+            .data(tableService.create(tableReq))
+            .build()
     );
   }
 
@@ -73,27 +76,27 @@ public class TableControllerManager extends Controller {
    * */
   @PostMapping(value = "/save_with_excel", produces = {MediaType.APPLICATION_JSON_VALUE})
   @AddAuthorizedDocAPI
-  @RolesAllowed({"ROLE_ADMIN", "ROLE_PRODUCT_NEW"})
-  public ResponseEntity<ResponseDTO> save(@RequestParam("file") MultipartFile file) throws IOException {
-    return ResponseEntity.ok().body(
-        new ResponseDTO(
-            HttpStatus.OK.value(),
-            "Thành công",
-            tableService.createByExcel(file.getInputStream())
-        )
+  @RolesAllowed({SysAction.ROLE_ADMIN, SysAction.ROLE_PRODUCT_NEW})
+  public ResponseEntity<BaseResponse> save(@RequestParam("file") MultipartFile file) throws IOException {
+    return ResponseEntity.ok(
+        BaseResponse.builder()
+            .code(ErrorMessage.SUCCESS.getStatus().value())
+            .message(ErrorMessage.SUCCESS.getMessage())
+            .data(tableService.createByExcel(file.getInputStream()))
+            .build()
     );
   }
 
   @PostMapping(value = "/update_table", produces = {MediaType.APPLICATION_JSON_VALUE})
   @AddAuthorizedDocAPI
-  @RolesAllowed({"ROLE_ADMIN", "ROLE_PRODUCT_UPDATE"})
-  public ResponseEntity<ResponseDTO> updateTable(@RequestBody @Valid TableUpdateRequestDTO dto) {
-    return ResponseEntity.ok().body(
-        new ResponseDTO(
-            HttpStatus.OK.value(),
-            "Thành công",
-            tableService.update(dto)
-        )
+  @RolesAllowed({SysAction.ROLE_ADMIN, SysAction.ROLE_PRODUCT_UPDATE})
+  public ResponseEntity<BaseResponse> updateTable(@RequestBody @Valid TableUpdateRequestDTO dto) {
+    return ResponseEntity.ok(
+        BaseResponse.builder()
+            .code(ErrorMessage.SUCCESS.getStatus().value())
+            .message(ErrorMessage.SUCCESS.getMessage())
+            .data(tableService.update(dto))
+            .build()
     );
   }
 
