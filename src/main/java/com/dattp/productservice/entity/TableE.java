@@ -1,7 +1,7 @@
 package com.dattp.productservice.entity;
 
-import com.dattp.productservice.dto.table.TableCreateRequestDTO;
-import com.dattp.productservice.dto.table.TableUpdateRequestDTO;
+import com.dattp.productservice.controller.user.dto.TableCreateRequestDTO;
+import com.dattp.productservice.controller.user.dto.TableUpdateRequestDTO;
 import com.dattp.productservice.entity.state.TableState;
 import com.dattp.productservice.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonFormat;

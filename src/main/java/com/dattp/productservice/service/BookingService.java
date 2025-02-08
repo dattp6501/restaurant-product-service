@@ -1,8 +1,8 @@
 package com.dattp.productservice.service;
 
 import com.dattp.productservice.config.kafka.KafkaTopicConfig;
-import com.dattp.productservice.dto.kafka.bookedtable.BookedTableResponseDTO;
-import com.dattp.productservice.dto.kafka.booking.BookingResponseDTO;
+import com.dattp.productservice.kafkalisteners.dto.bookedtable.BookedTableResponseDTO;
+import com.dattp.productservice.kafkalisteners.dto.booking.BookingResponseDTO;
 import com.dattp.productservice.entity.TableE;
 import com.dattp.productservice.entity.state.TableState;
 import lombok.extern.log4j.Log4j2;

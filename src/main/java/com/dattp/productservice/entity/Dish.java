@@ -1,7 +1,7 @@
 package com.dattp.productservice.entity;
 
-import com.dattp.productservice.dto.dish.DishCreateRequestDTO;
-import com.dattp.productservice.dto.dish.DishUpdateRequestDTO;
+import com.dattp.productservice.controller.user.dto.DishCreateRequestDTO;
+import com.dattp.productservice.controller.user.dto.DishUpdateRequestDTO;
 import com.dattp.productservice.entity.state.DishState;
 import com.dattp.productservice.utils.DateUtils;
 import com.dattp.productservice.utils.JSONUtils;
@@ -38,7 +38,7 @@ public class Dish implements Serializable {
   @Column(name = "image")
   private String image;
 
-  @Column(name = "description")
+  @Column(name = "description", columnDefinition = "text")
   private String description;
 
   @Column(name = "create_at")

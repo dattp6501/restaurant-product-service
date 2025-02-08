@@ -1,7 +1,7 @@
 package com.dattp.productservice.kafkalisteners;
 
 import com.dattp.productservice.config.kafka.KafkaTopicConfig;
-import com.dattp.productservice.dto.kafka.booking.BookingResponseDTO;
+import com.dattp.productservice.kafkalisteners.dto.booking.BookingResponseDTO;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Payload;

@@ -1,6 +1,9 @@
 package com.dattp.productservice.config.redis;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
 
+@Component
 public class RedisKeyConfig {
   public static final String PREFIX_APP = "restaurant::";
   //================================== AUTH ===================
@@ -10,6 +13,10 @@ public class RedisKeyConfig {
   public static final String PREFIX_PRODUCT = PREFIX_APP + "product::";
   public static final String PREFIX_TABLE = PREFIX_PRODUCT + "table::";
   public static final String PREFIX_DISH = PREFIX_PRODUCT + "dish::";
+
+  public static final String PREFIX_DISH_COMMENT = PREFIX_DISH + "comment::";
+
+  public static final String PREFIX_TABLE_COMMENT = PREFIX_TABLE + "comment::";
   //================================== ORDER =======================
   public static final String PREFIX_ORDER = PREFIX_APP + "order::";
   public static final String PREFIX_CART = PREFIX_ORDER + "cart::";
@@ -19,7 +26,40 @@ public class RedisKeyConfig {
   //=====================================================================================
   //                                      KEY
   //=====================================================================================
+  public static final String NO_TYPE_KEY = "none";
+  public static final String PAGE_TYPE_KEY = "page";
+
+  public static final String PREFIX_ID_DEFAULT = "prefix_id";
+
+
   //================================== PRODUCT ==========================================
+
+  public static String genKeyPage(Pageable pageable) {
+    return genKeyBase(PAGE_TYPE_KEY, PREFIX_ID_DEFAULT,
+        String.format(
+            "%d_%d", pageable.getPageNumber(), pageable.getPageSize()
+        ));
+  }
+
+  public static String genKeyPage(String prefixId, Pageable pageable) {
+    return genKeyBase(PAGE_TYPE_KEY, prefixId,
+        String.format(
+            "%d_%d", pageable.getPageNumber(), pageable.getPageSize()
+        ));
+  }
+
+  public static String genKeyNoType(String key) {
+    return genKeyBase(NO_TYPE_KEY, PREFIX_ID_DEFAULT, key);
+  }
+
+  public static String genKeyNoType(String prefixId, String key) {
+    return genKeyBase(NO_TYPE_KEY, prefixId, key);
+  }
+
+  public static String genKeyBase(String type, String prefixId, String key) {
+    return String.format("%s:%s:%s", type, prefixId, key);
+  }
+
   public static String genKeyPageDishOverview(int page) {
     return String.format("%soverview::page:%d", PREFIX_DISH, page);
   }

@@ -1,7 +1,7 @@
 package com.dattp.productservice.config.kafka;
 
 
-import com.dattp.productservice.dto.kafka.booking.BookingResponseDTO;
+import com.dattp.productservice.kafkalisteners.dto.booking.BookingResponseDTO;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
