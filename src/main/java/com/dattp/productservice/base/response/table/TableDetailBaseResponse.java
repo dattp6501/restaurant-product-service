@@ -38,7 +38,7 @@ public class TableDetailBaseResponse extends TableOverviewResponse {
   public void copyProperties(TableE table) {
     BeanUtils.copyProperties(table, this);
     super.copyProperties(table);
-    super.setCreateAt(table.getCreateAt());
-    super.setUpdateAt(table.getUpdateAt());
+    super.setCreateAtLong(table.getCreateAt());
+    super.setUpdateAtLong(table.getUpdateAt());
   }
 }

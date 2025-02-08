@@ -22,8 +22,8 @@ public class DishOverviewResponse extends ProductBaseResponse implements Seriali
 
   public void copyProperties(Dish dish) {
     BeanUtils.copyProperties(dish, this);
-    super.setCreateAt(dish.getCreateAt());
-    super.setUpdateAt(dish.getUpdateAt());
+    super.setCreateAtLong(dish.getCreateAt());
+    super.setUpdateAtLong(dish.getUpdateAt());
   }
 
   @Override

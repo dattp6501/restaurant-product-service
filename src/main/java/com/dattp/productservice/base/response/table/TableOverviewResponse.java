@@ -27,7 +27,7 @@ public class TableOverviewResponse extends ProductBaseResponse implements Serial
   public void copyProperties(TableE table) {
     BeanUtils.copyProperties(table, this);
     this.freeTime = new ArrayList<>();
-    super.setCreateAt(table.getCreateAt());
-    super.setUpdateAt(table.getUpdateAt());
+    super.setCreateAtLong(table.getCreateAt());
+    super.setUpdateAtLong(table.getUpdateAt());
   }
 }

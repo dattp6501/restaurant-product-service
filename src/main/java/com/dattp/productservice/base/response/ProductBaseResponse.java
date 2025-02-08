@@ -30,11 +30,11 @@ public class ProductBaseResponse {
     super();
   }
 
-  public void setCreateAt(Long createAt) {
+  public void setCreateAtLong(Long createAt) {
     if (createAt != null) this.createAt = DateUtils.convertToLocalDateTime(createAt);
   }
 
-  public void setUpdateAt(Long updateAt) {
+  public void setUpdateAtLong(Long updateAt) {
     if (updateAt != null) this.updateAt = DateUtils.convertToLocalDateTime(updateAt);
   }
 }
