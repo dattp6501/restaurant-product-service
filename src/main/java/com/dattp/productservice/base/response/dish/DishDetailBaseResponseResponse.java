@@ -20,13 +20,8 @@ public class DishDetailBaseResponseResponse extends DishOverviewResponse {
     super();
   }
 
-  public DishDetailBaseResponseResponse(Dish dish) {
-    copyProperties(dish);
-  }
-
   @Override
   public void copyProperties(Dish dish) {
-    super.copyProperties(dish);
     BeanUtils.copyProperties(dish, this);
     super.setCreateAtLong(dish.getCreateAt());
     super.setUpdateAtLong(dish.getUpdateAt());

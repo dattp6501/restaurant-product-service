@@ -20,10 +20,10 @@ public class ProductBaseResponse {
 
   private String description;
 
-  @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+  @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", shape = JsonFormat.Shape.STRING)
   private LocalDateTime createAt;
 
-  @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
+  @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", shape = JsonFormat.Shape.STRING)
   private LocalDateTime updateAt;
 
   public ProductBaseResponse() {

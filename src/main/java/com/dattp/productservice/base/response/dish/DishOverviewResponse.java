@@ -3,6 +3,7 @@ package com.dattp.productservice.base.response.dish;
 import com.dattp.productservice.base.response.ProductBaseResponse;
 import com.dattp.productservice.entity.Dish;
 import com.dattp.productservice.utils.JSONUtils;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.BeanUtils;
@@ -11,6 +12,7 @@ import java.io.Serializable;
 
 @Getter
 @Setter
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DishOverviewResponse extends ProductBaseResponse implements Serializable {
   public DishOverviewResponse() {
     super();

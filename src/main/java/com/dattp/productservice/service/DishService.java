@@ -71,7 +71,7 @@ public class DishService extends com.dattp.productservice.service.Service {
    * */
   @Cacheable(value = RedisKeyConfig.PREFIX_DISH, key = "@redisKeyConfig.genKeyNoType(#id)")
   public DishDetailUserResponseResponse getDetail(Long id) {
-    return new DishDetailUserResponseResponse(
+    return DishDetailUserResponseResponse.gen(
         dishRepository.findById(id).orElseThrow(() ->
             new BadRequestException(String.format("dish(id=%d) not found", id)))
     );
@@ -118,7 +118,7 @@ public class DishService extends com.dattp.productservice.service.Service {
   }
 
   public DishDetailUserResponseResponse getDetailManager(Long id) {
-    return new DishDetailUserResponseResponse(
+    return DishDetailUserResponseResponse.gen(
         dishRepository.findById(id).orElseThrow(() -> new BadRequestException(String.format("dish(id=%d) not found", id)))
     );
   }
@@ -134,7 +134,7 @@ public class DishService extends com.dattp.productservice.service.Service {
     //save db
     Dish dish = dishRepository.save(new Dish(dishReq));
     //response
-    DishDetailUserResponseResponse resp = new DishDetailUserResponseResponse(dish);
+    DishDetailUserResponseResponse resp = DishDetailUserResponseResponse.gen(dish);
     kafkaService.send(KafkaTopicConfig.NEW_DISH_TOPIC, resp);
     return resp;
   }
@@ -150,7 +150,7 @@ public class DishService extends com.dattp.productservice.service.Service {
     //save db
     dish = dishRepository.save(dish);
     //resp
-    DishDetailUserResponseResponse resp = new DishDetailUserResponseResponse(dish);
+    DishDetailUserResponseResponse resp = DishDetailUserResponseResponse.gen(dish);
     kafkaService.send(KafkaTopicConfig.UPDATE_DISH_TOPIC, resp);
     return resp;
   }
@@ -166,7 +166,7 @@ public class DishService extends com.dattp.productservice.service.Service {
     listDish = self.saveListDish(listDish);
     listDish.forEach(dish -> {
       //send kafka
-      kafkaService.send(KafkaTopicConfig.NEW_TABLE_TOPIC, new DishDetailUserResponseResponse(dish));
+      kafkaService.send(KafkaTopicConfig.NEW_TABLE_TOPIC, DishDetailUserResponseResponse.gen(dish));
     });
     return true;
   }

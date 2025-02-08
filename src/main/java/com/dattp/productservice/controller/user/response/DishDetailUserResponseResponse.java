@@ -4,21 +4,25 @@ import com.dattp.productservice.base.response.dish.DishDetailBaseResponseRespons
 import com.dattp.productservice.entity.Dish;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.BeanUtils;
 
 @Getter
 @Setter
 public class DishDetailUserResponseResponse extends DishDetailBaseResponseResponse {
   public DishDetailUserResponseResponse() {
-    super();
+//    super();
   }
 
-  public DishDetailUserResponseResponse(Dish dish) {
-    this.copyProperties(dish);
+  public static DishDetailUserResponseResponse gen(Dish dish) {
+    DishDetailUserResponseResponse resp = new DishDetailUserResponseResponse();
+    resp.copyProperties(dish);
+    return resp;
   }
 
 
   @Override
   public void copyProperties(Dish dish) {
+    BeanUtils.copyProperties(dish, this);
     super.copyProperties(dish);
   }
 }

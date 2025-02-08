@@ -3,6 +3,7 @@ package com.dattp.productservice.service;
 import com.dattp.productservice.base.response.dish.DishOverviewResponse;
 import com.dattp.productservice.config.redis.RedisKeyConfig;
 import com.dattp.productservice.controller.user.dto.DishInCartRequestDTO;
+import com.dattp.productservice.utils.JSONUtils;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -27,11 +28,11 @@ public class CartService extends com.dattp.productservice.service.Service {
     //neu chua co thong tin gio hang => tao
     if (dishIds == null || dishIds.isEmpty()) {
       Map<Object, Object> data = new HashMap<>();
-      data.put(dto.getDishId().toString(), dish);
+      data.put(dto.getDishId().toString(), JSONUtils.toJson(dish));
       redisService.putHashAll(key, data, RedisService.CacheTime.ONE_MONTH);
     } else {
       redisService.addElemntHash(RedisKeyConfig.genKeyCartDish(jwtService.getUserId()),
-          dto.getDishId().toString(), dish, RedisService.CacheTime.ONE_MONTH);
+          dto.getDishId().toString(), JSONUtils.toJson(dish), RedisService.CacheTime.ONE_MONTH);
     }
   }
 

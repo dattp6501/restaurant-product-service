@@ -7,10 +7,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -112,9 +109,10 @@ public class RedisService {
           .stream()
           .map(e -> JSONUtils.toEntity((String) e, typeClassElement))
           .collect(Collectors.toList());
-      return list.isEmpty() ? null : list;
+      return list.isEmpty() ? Collections.emptyList() : list;
     } catch (Exception e) {
-      return null;
+      log.error("============> getHashAll exception \n {}", e.getMessage());
+      return Collections.emptyList();
     }
   }
 
