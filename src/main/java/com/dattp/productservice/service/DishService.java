@@ -59,11 +59,9 @@ public class DishService extends com.dattp.productservice.service.Service {
   }
 
   @Cacheable(value = RedisKeyConfig.PREFIX_DISH, key = "@redisKeyConfig.genKeyNoType('hot')")
-  public List<DishOverviewResponse> getListDishHot(Pageable pageable) {
+  public PageSliceResponse<DishOverviewResponse> getListDishHot(Pageable pageable) {
     Slice<Dish> dishs = dishRepository.findDishesByStateIn(List.of(DishState.ACTIVE), pageable);
-    List<DishOverviewResponse> response = dishs.stream().map(DishOverviewResponse::new).toList();
-    if (response.size() > 10) return response.subList(0, 10);
-    return response;
+    return PageSliceResponse.createFrom(dishs.map(DishOverviewResponse::new));
   }
 
   /*
